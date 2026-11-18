@@ -1,0 +1,13 @@
+{
+  "name": "defaultstackr-smoke-test",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node --check server.mjs",
+    "start": "node server.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

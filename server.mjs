@@ -1,18 +1,41 @@
 import http from 'node:http';
+import { readFile } from 'node:fs/promises';
+import { execFileSync } from 'node:child_process';
 
-const html = `<!doctype html><html lang="nl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>DefaultStackr · Testpagina</title><style>body{min-height:100vh;margin:0;display:grid;place-items:center;background:radial-gradient(circle at 70% 20%,#582477 0,transparent 38%),#08050c;color:#f7ecff;font:16px system-ui}main{max-width:620px;padding:48px;border:1px solid #a965d0;border-radius:22px;background:#1b0e25;box-shadow:0 0 75px #933dc755}small{color:#d59aff;letter-spacing:.2em}h1{font-size:clamp(36px,7vw,68px);margin:20px 0;line-height:1.02}p{color:#c5afd2;line-height:1.6}a{color:#e4b4ff}</style></head><body><main><small>DEFAULTSTACKR / TESTDEPLOY</small><h1>Je eerste pagina staat online.</h1><p>Deze testpagina draait vanaf GitHub op je eigen DefaultStackr-server. Als je dit ziet, werken de deploy-worker, Nginx en de Cloudflare-route samen.</p><a href="/healthz">Controleer de gezondheidscheck ↗</a></main></body></html>`;
+const revision = process.env.GIT_COMMIT_SHA?.slice(0, 7) || (() => {
+  try { return execFileSync('git', ['rev-parse', '--short=7', 'HEAD'], { encoding: 'utf8' }).trim(); }
+  catch { return 'local'; }
+})();
 
-http.createServer((request, response) => {
-  if (request.url === '/healthz') {
-    response.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
-    response.end(JSON.stringify({ status: 'ok', app: 'defaultstackr-smoke-test' }));
+const assets = new Map([
+  ['/', ['index.html', 'text/html; charset=utf-8']],
+  ['/styles.css', ['styles.css', 'text/css; charset=utf-8']],
+  ['/game.js', ['game.js', 'text/javascript; charset=utf-8']],
+  ['/game-core.mjs', ['game-core.mjs', 'text/javascript; charset=utf-8']],
+]);
+
+http.createServer(async (request, response) => {
+  const pathname = new URL(request.url || '/', 'http://localhost').pathname;
+  const headers = { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff' };
+  if (pathname === '/healthz' || pathname === '/version') {
+    response.writeHead(200, headers);
+    response.end(JSON.stringify(pathname === '/healthz'
+      ? { status: 'ok', app: 'defaultstackr-smoke-test', revision }
+      : { revision }));
     return;
   }
-  if (request.url === '/') {
-    response.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'X-Content-Type-Options': 'nosniff' });
-    response.end(html);
+  const asset = assets.get(pathname);
+  if (!asset) {
+    response.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8', 'X-Content-Type-Options': 'nosniff' });
+    response.end('Niet gevonden');
     return;
   }
-  response.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
-  response.end('Niet gevonden');
+  try {
+    const body = await readFile(new URL(`./public/${asset[0]}`, import.meta.url));
+    response.writeHead(200, { 'Content-Type': asset[1], 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff' });
+    response.end(asset[0] === 'index.html' ? body.toString().replaceAll('__REVISION__', revision) : body);
+  } catch {
+    response.writeHead(500, { 'Content-Type': 'text/plain; charset=utf-8' });
+    response.end('Pagina laden mislukt');
+  }
 }).listen(Number(process.env.PORT || 8080), '127.0.0.1');

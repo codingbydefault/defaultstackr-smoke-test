@@ -113,11 +113,12 @@ startButton.addEventListener('click', () => {
   else start();
 });
 pauseButton.addEventListener('click', togglePause);
-const keys = { ArrowUp: 'up', ArrowRight: 'right', ArrowDown: 'down', ArrowLeft: 'left', w: 'up', d: 'right', s: 'down', a: 'left' };
+const keys = { ArrowUp: 'up', ArrowRight: 'right', ArrowDown: 'down', ArrowLeft: 'left' };
 document.addEventListener('keydown', event => {
-  const direction = keys[event.key] || keys[event.key.toLowerCase()];
+  const direction = keys[event.key];
   if (direction) { event.preventDefault(); steer(direction); }
-  else if (event.code === 'Space') { event.preventDefault(); togglePause(); }
+  else if (event.code === 'Space') { event.preventDefault(); start(); }
+  else if (event.key.toLowerCase() === 'p') { event.preventDefault(); togglePause(); }
   else if (event.key === 'Enter' && !overlay.hidden) { event.preventDefault(); startButton.click(); }
 });
 document.querySelectorAll('[data-direction]').forEach(button => button.addEventListener('click', () => steer(button.dataset.direction)));

@@ -7,11 +7,19 @@ const revision = process.env.GIT_COMMIT_SHA?.slice(0, 7) || (() => {
   catch { return 'local'; }
 })();
 
+const JS = 'text/javascript; charset=utf-8';
 const assets = new Map([
   ['/', ['index.html', 'text/html; charset=utf-8']],
   ['/styles.css', ['styles.css', 'text/css; charset=utf-8']],
-  ['/game.js', ['game.js', 'text/javascript; charset=utf-8']],
-  ['/game-core.mjs', ['game-core.mjs', 'text/javascript; charset=utf-8']],
+  ['/game.js', ['game.js', JS]],
+  ['/game-core.mjs', ['game-core.mjs', JS]],
+  ['/games/hub.js', ['games/hub.js', JS]],
+  ['/games/engine.mjs', ['games/engine.mjs', JS]],
+  ['/games/snake-game.js', ['games/snake-game.js', JS]],
+  ['/games/space-tetris-core.mjs', ['games/space-tetris-core.mjs', JS]],
+  ['/games/space-tetris-game.js', ['games/space-tetris-game.js', JS]],
+  ['/games/impact-core.mjs', ['games/impact-core.mjs', JS]],
+  ['/games/impact-game.js', ['games/impact-game.js', JS]],
 ]);
 
 http.createServer(async (request, response) => {

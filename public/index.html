@@ -2,46 +2,91 @@
 <html lang="nl">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#080b12">
-  <title>Neon Snake · DefaultStackr smoke test</title>
-  <meta name="description" content="Speel Neon Snake op een project dat via DefaultStackr is uitgerold.">
+  <title>DefaultStackr Arcade · Nokia klassiekers</title>
+  <meta name="description" content="Speel Snake, Space Tetris en Space Impact — drie Nokia-era games, speelbaar op mobiel en desktop.">
   <link rel="stylesheet" href="/styles.css">
-  <script type="module" src="/game.js"></script>
+  <script type="module" src="/games/hub.js"></script>
 </head>
 <body>
   <div class="ambient ambient-one" aria-hidden="true"></div><div class="ambient ambient-two" aria-hidden="true"></div>
+
   <header class="topbar">
-    <a class="brand" href="/" aria-label="DefaultStackr testpagina"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span><span>defaultstackr<span class="brand-dot">.</span><small>SMOKE TEST / 002</small></span></a>
-    <div class="top-right"><span class="online"><span></span> SYSTEM ONLINE</span><a href="/healthz" class="health-link">HEALTH CHECK <span aria-hidden="true">↗</span></a></div>
+    <a class="brand" href="/" aria-label="DefaultStackr arcade"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span><span>defaultstackr<span class="brand-dot">.</span><small>ARCADE / BUILD __REVISION__</small></span></a>
+    <div class="top-right"><span class="online"><span></span> SYSTEM ONLINE</span><a href="/healthz" class="health-link">HEALTH <span aria-hidden="true">↗</span></a></div>
   </header>
-  <main>
-    <section class="intro" aria-labelledby="title">
-      <div class="eyebrow"><span class="eyebrow-line"></span> AUTO-DEPLOY TEST <span class="eyebrow-number">/ 02</span></div>
-      <h1 id="title">EEN KLASSIEKER.<br><em>OPNIEUW GELADEN.</em></h1>
-      <p>Release 002: automatische GitHub-deployment wordt getest. Vergelijk de commitversie onderaan met /version. Bij een mislukte build hoort de vorige werkende versie online te blijven.</p>
+
+  <main id="hub" class="hub">
+    <section class="intro">
+      <div class="eyebrow"><span class="eyebrow-line"></span> AUTO-DEPLOY SMOKE TEST <span class="eyebrow-number">/ 03</span></div>
+      <h1>KIES JE <em>SPEL.</em></h1>
+      <p>Drie klassiekers uit de Nokia-tijd, opnieuw geladen. Tik op een spel — het start meteen in volledig scherm. Swipe op je telefoon, gebruik de knoppen of het toetsenbord.</p>
     </section>
-    <section class="game-shell" aria-label="Neon Snake spel">
-      <div class="game-top"><div class="game-title"><span class="game-icon">◈</span><span><strong>NEON SNAKE</strong><small>ARCADE / BUILD __REVISION__</small></span></div><span class="game-tag">// LIVE INSTANCE</span></div>
-      <div class="game-content">
-        <div class="board-wrap">
-          <div class="board-corners" aria-hidden="true"></div>
-          <canvas id="board" width="528" height="528" role="img" aria-label="Snake speelveld"></canvas>
-          <div id="overlay" class="overlay"><div class="overlay-icon" aria-hidden="true">⌁</div><span id="overlay-kicker">SYSTEM READY</span><h2 id="overlay-title">Ben je er klaar voor?</h2><p id="overlay-copy">Verzamel de energiepunten. Raak de muur of jezelf niet.</p><button id="start" class="action" type="button">START SPEL <span aria-hidden="true">↗</span></button></div>
-        </div>
-        <aside class="sidebar">
-          <div class="stat"><span>SCORE <span>01</span></span><strong id="score">000</strong></div>
-          <div class="stat"><span>BESTE SCORE <span>02</span></span><strong id="best">000</strong></div>
-          <div class="info-block"><span>STATUS</span><strong id="status" aria-live="polite">Klaar om te spelen</strong><div class="status-track"><i id="status-light"></i></div></div>
-          <div class="info-block controls"><span>BESTURING</span><p>Gebruik de <b>pijltjestoetsen</b> om de slang te bewegen.</p><p>Druk op <b>spatie</b> om te starten of opnieuw te beginnen. <b>P</b> pauzeert het spel.</p></div>
-          <button id="pause" class="pause" type="button" disabled>PAUZEER <span>Ⅱ</span></button>
-        </aside>
-      </div>
-      <div class="touch-controls" aria-label="Aanraakbesturing"><button type="button" data-direction="left" aria-label="Links">←</button><div><button type="button" data-direction="up" aria-label="Omhoog">↑</button><button type="button" data-direction="down" aria-label="Omlaag">↓</button></div><button type="button" data-direction="right" aria-label="Rechts">→</button></div>
-      <div class="game-footer"><span>◉ &nbsp; AUTO-DEPLOY SMOKE TEST 002</span><span>BUILD <code>__REVISION__</code></span></div>
+
+    <section class="game-grid" aria-label="Kies een spel">
+      <button class="game-card" type="button" data-game="snake">
+        <span class="card-index">01 / 1998</span>
+        <span class="card-art card-art-snake" aria-hidden="true"><i></i><i></i><i></i><i></i><b></b></span>
+        <span class="card-name">SNAKE</span>
+        <span class="card-copy">Verzamel energiepunten. Word niet je eigen staart.</span>
+        <span class="card-foot"><span>BEST <b id="card-best-snake">000</b></span><span class="card-play">SPEEL ▶</span></span>
+      </button>
+      <button class="game-card" type="button" data-game="tetris">
+        <span class="card-index">02 / 2000</span>
+        <span class="card-art card-art-tetris" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
+        <span class="card-name">SPACE TETRIS</span>
+        <span class="card-copy">Stapel satellieten, vul rijen en haal hogere niveaus.</span>
+        <span class="card-foot"><span>BEST <b id="card-best-tetris">00000</b></span><span class="card-play">SPEEL ▶</span></span>
+      </button>
+      <button class="game-card" type="button" data-game="impact">
+        <span class="card-index">03 / 2002</span>
+        <span class="card-art card-art-impact" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+        <span class="card-name">SPACE IMPACT</span>
+        <span class="card-copy">Schiet indringers neer en houd je schip in leven.</span>
+        <span class="card-foot"><span>BEST <b id="card-best-impact">00000</b></span><span class="card-play">SPEEL ▶</span></span>
+      </button>
     </section>
-    <p class="below">Smoke test 002 — nieuwe GitHub-push, bestaande game ongewijzigd. <a href="/version">Bekijk versie ↗</a></p>
+
+    <p class="below">Smoke test 003 — automatische GitHub-deploy. <a href="/version">Bekijk versie ↗</a></p>
   </main>
-  <footer><span>© DEFAULTSTACKR / CODEDBYDEFAULT</span><span>POWERED BY YOUR OWN INFRASTRUCTURE</span></footer>
+
+  <section id="game-view" class="game-view" hidden aria-label="Spel scherm">
+    <div class="game-meta">
+      <div><span id="game-kicker">NOKIA</span><h2 id="game-title">SNAKE</h2></div>
+      <p id="game-hint">Swipe om te sturen</p>
+    </div>
+
+    <div class="phone">
+      <div class="phone-top"><span class="phone-brand">DEFAULTSTACKR</span><span class="speaker" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span></div>
+      <div class="lcd">
+        <div class="lcd-bar"><span>● ARCade</span><span id="status">READY</span></div>
+        <div class="lcd-screen">
+          <canvas id="game-canvas" role="img" aria-label="Speelveld"></canvas>
+          <div id="game-overlay" class="lcd-overlay" hidden></div>
+        </div>
+      </div>
+      <div class="phone-keypad">
+        <div id="controls-snake" class="controls" data-controls="controls-snake" hidden>
+          <div class="dpad"><span></span><button type="button" data-action="up" aria-label="Omhoog">▲</button><span></span><button type="button" data-action="left" aria-label="Links">◀</button><span class="dpad-center">◇</span><button type="button" data-action="right" aria-label="Rechts">▶</button><span></span><button type="button" data-action="down" aria-label="Omlaag">▼</button><span></span></div>
+          <button class="side-key" type="button" data-action="pause">II</button>
+        </div>
+        <div id="controls-tetris" class="controls" data-controls="controls-tetris" hidden>
+          <div class="key-row"><button type="button" data-action="left" aria-label="Links">◀</button><button type="button" data-action="rotate" aria-label="Draaien">↻</button><button type="button" data-action="right" aria-label="Rechts">▶</button></div>
+          <div class="key-row"><button type="button" data-action="soft" aria-label="Zacht vallen">▼</button><button type="button" data-action="drop" aria-label="Snel vallen">⤓</button><button type="button" data-action="pause">II</button></div>
+        </div>
+        <div id="controls-impact" class="controls" data-controls="controls-impact" hidden>
+          <div class="key-row"><button type="button" data-action="up" aria-label="Omhoog">▲</button><button class="fire-key" type="button" data-action="fire" aria-label="Vuren">FIRE</button><button type="button" data-action="down" aria-label="Omlaag">▼</button></div>
+          <div class="key-row"><button type="button" data-action="pause">II</button></div>
+        </div>
+      </div>
+      <div class="phone-bottom">
+        <div class="readout"><span>SCORE <b id="score">000</b></span><span>BEST <b id="best">000</b></span></div>
+        <button id="exit" class="exit" type="button">TERUG ↩</button>
+      </div>
+    </div>
+  </section>
+
+  <footer><span>© DEFAULTSTACKR / CODEDBYDEFAULT</span><span>BUILD <code>__REVISION__</code></span></footer>
 </body>
 </html>

@@ -29,7 +29,7 @@ const assets = new Map([
   ['/games/trap-core.mjs', ['games/trap-core.mjs', JS]],
   ['/games/trap-game.js', ['games/trap-game.js', JS]],
   ['/games/coaster-core.mjs', ['games/coaster-core.mjs', JS]],
-  ['/games/coaster-game.js', ['games/coaster-game.js', JS]],
+  ['/games/coaster-park-game.js', ['games/coaster-park-game.js', JS]],
 ]);
 
 http.createServer(async (request, response) => {
@@ -44,7 +44,7 @@ http.createServer(async (request, response) => {
   }
   const asset = assets.get(pathname);
   if (!asset) {
-    response.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8', 'X-Content-Type-Options': 'nosniff' });
+    response.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8', 'Cache-Control': 'no-store, max-age=0', 'X-Content-Type-Options': 'nosniff' });
     response.end('Niet gevonden');
     return;
   }

@@ -1,6 +1,6 @@
 import { getBest } from './engine.mjs';
 import { mountBounce } from './bounce-game.js';
-import { mountCoaster } from './coaster-game.js';
+import { mountCoaster } from './coaster-park-game.js';
 import { mountImpact } from './impact-game.js';
 import { mountLines } from './lines-game.js';
 import { mountPairs } from './pairs-game.js';

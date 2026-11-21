@@ -122,7 +122,7 @@ export function mountBounce({ canvas, overlay, scoreNode, bestNode, statusNode, 
   sync();
   draw();
   showOverlay(overlay, {
-    kicker: 'NOKIA · 2001', title: 'BOUNCE', copy: 'Houd de bal in de lucht en breek de blokken.', action: 'START ▶', onAction: start
+    kicker: 'RETRO LCD · 2001', title: 'BOUNCE', copy: 'Houd de bal in de lucht en breek de blokken.', action: 'START ▶', onAction: start
   });
 
   return {

@@ -283,7 +283,7 @@ export function mountRacer({ canvas, overlay, scoreNode, bestNode, statusNode, b
   sync();
   draw();
   showOverlay(overlay, {
-    kicker: 'NOKIA · 2003',
+    kicker: 'RETRO LCD · 2003',
     title: 'POLE POSITION',
     copy: 'Stuur met ◀ ▶, swipe of tik op het scherm. Pak nitroblikjes en tik FIRE voor een boost.',
     action: 'START ▶',

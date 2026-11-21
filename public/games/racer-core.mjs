@@ -1,4 +1,4 @@
-// Nokia-era top-down racer logic. Pure and deterministic with injected random.
+// retro LCD-era top-down racer logic. Pure and deterministic with injected random.
 // All state is mutated in place, matching the other game cores in this folder.
 
 export const FIELD_W = 16;

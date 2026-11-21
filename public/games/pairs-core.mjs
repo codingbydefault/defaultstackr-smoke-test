@@ -1,4 +1,4 @@
-// Memory matching game logic (Nokia Pairs-style). Pure and deterministic when
+// Memory matching game logic (classic memory-style). Pure and deterministic when
 // a random function is injected.
 
 export const SYMBOLS = 8;

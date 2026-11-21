@@ -185,7 +185,7 @@ export function mountImpact({ canvas, overlay, scoreNode, bestNode, statusNode, 
   sync();
   draw();
   showOverlay(overlay, {
-    kicker: 'NOKIA · 2002', title: 'SPACE IMPACT', copy: 'Schiet de indringers neer. Bescherm je schip.', action: 'START ▶', onAction: start
+    kicker: 'RETRO LCD · 2002', title: 'SPACE IMPACT', copy: 'Schiet de indringers neer. Bescherm je schip.', action: 'START ▶', onAction: start
   });
 
   return {

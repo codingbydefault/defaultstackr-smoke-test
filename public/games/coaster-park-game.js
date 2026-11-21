@@ -329,7 +329,7 @@ export function mountCoaster({ canvas, overlay, scoreNode, bestNode, statusNode,
   sync();
   draw();
   showOverlay(overlay, {
-    kicker: 'NOKIA · 2003', title: 'COASTER PARK',
+    kicker: 'RETRO LCD · 2003', title: 'COASTER PARK',
     copy: `Kies in BOUW, tik op het veld en draai grote attracties met ↻. Bereik rating 60 en €1000 op dag 3. Reparatie: €${REPAIR_COST} per rit.`,
     action: 'START ▶', onAction: start
   });

@@ -11,7 +11,7 @@ import { mountTrap } from './trap-game.js';
 const GAMES = {
   snake: {
     title: 'SNAKE',
-    kicker: 'NOKIA 3310 · 1998',
+    kicker: 'RETRO LCD · 1998',
     hint: 'Swipe of pijltjes om te sturen',
     controls: 'controls-snake',
     bestKey: 'defaultstackr-nokia-snake-best',
@@ -20,7 +20,7 @@ const GAMES = {
   },
   tetris: {
     title: 'SPACE TETRIS',
-    kicker: 'NOKIA · 2000',
+    kicker: 'RETRO LCD · 2000',
     hint: 'Swipe om te verplaatsen · omhoog = draaien',
     controls: 'controls-tetris',
     bestKey: 'defaultstackr-nokia-space-tetris-best',
@@ -29,7 +29,7 @@ const GAMES = {
   },
   impact: {
     title: 'SPACE IMPACT',
-    kicker: 'NOKIA · 2002',
+    kicker: 'RETRO LCD · 2002',
     hint: 'Swipe om te bewegen · tik = vuren',
     controls: 'controls-impact',
     bestKey: 'defaultstackr-nokia-impact-best',
@@ -38,7 +38,7 @@ const GAMES = {
   },
   bounce: {
     title: 'BOUNCE',
-    kicker: 'NOKIA · 2001',
+    kicker: 'RETRO LCD · 2001',
     hint: 'Houd de bal in de lucht met ◀ ▶',
     controls: 'controls-bounce',
     bestKey: 'defaultstackr-nokia-bounce-best',
@@ -47,7 +47,7 @@ const GAMES = {
   },
   pairs: {
     title: 'PAIRS',
-    kicker: 'NOKIA · 1999',
+    kicker: 'RETRO LCD · 1999',
     hint: 'Tik twee kaarten aan · zoek de paren',
     controls: 'controls-pairs',
     bestKey: 'defaultstackr-nokia-pairs-best',
@@ -56,7 +56,7 @@ const GAMES = {
   },
   racer: {
     title: 'POLE POSITION',
-    kicker: 'NOKIA · 2003',
+    kicker: 'RETRO LCD · 2003',
     hint: 'Stuur met ◀ ▶ · tik FIRE voor boost',
     controls: 'controls-racer',
     bestKey: 'defaultstackr-nokia-racer-best',
@@ -65,7 +65,7 @@ const GAMES = {
   },
   trap: {
     title: 'TRAP!',
-    kicker: 'NOKIA · 2000',
+    kicker: 'RETRO LCD · 2000',
     hint: 'Ontwijk de vallen met ◀ ▶ ▲ ▼',
     controls: 'controls-trap',
     bestKey: 'defaultstackr-nokia-trap-best',
@@ -74,7 +74,7 @@ const GAMES = {
   },
   coaster: {
     title: 'COASTER PARK',
-    kicker: 'NOKIA · 2003',
+    kicker: 'RETRO LCD · 2003',
     hint: 'Kies in BOUW · tik op het veld · R draaien · S snelheid · F repareren',
     controls: 'controls-coaster',
     bestKey: 'defaultstackr-nokia-coaster-best',

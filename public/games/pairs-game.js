@@ -133,7 +133,7 @@ export function mountPairs({ canvas, overlay, scoreNode, bestNode, statusNode, c
   sync();
   draw();
   showOverlay(overlay, {
-    kicker: 'NOKIA · 1999', title: 'PAIRS', copy: 'Draai twee kaarten om en zoek de acht paren.', action: 'START ▶', onAction: start
+    kicker: 'RETRO LCD · 1999', title: 'PAIRS', copy: 'Draai twee kaarten om en zoek de acht paren.', action: 'START ▶', onAction: start
   });
 
   return {

@@ -126,7 +126,7 @@ export function mountSnake({ canvas, overlay, scoreNode, bestNode, statusNode, c
   sync();
   draw();
   showOverlay(overlay, {
-    kicker: 'NOKIA 3310 · 1998', title: 'SNAKE', copy: 'Verzamel de energie. Raak de muur of jezelf niet.', action: 'START ▶', onAction: start
+    kicker: 'RETRO LCD · 1998', title: 'SNAKE', copy: 'Verzamel de energie. Raak de muur of jezelf niet.', action: 'START ▶', onAction: start
   });
 
   return {

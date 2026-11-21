@@ -200,7 +200,7 @@ export function mountTrap({ canvas, overlay, scoreNode, bestNode, statusNode, co
   sync();
   draw();
   showOverlay(overlay, {
-    kicker: 'NOKIA · 2000', title: 'TRAP!', copy: 'Ontwijk de rollende vallen. Hoe langer je overleeft, hoe hoger de score.', action: 'START ▶', onAction: start
+    kicker: 'RETRO LCD · 2000', title: 'TRAP!', copy: 'Ontwijk de rollende vallen. Hoe langer je overleeft, hoe hoger de score.', action: 'START ▶', onAction: start
   });
 
   return {

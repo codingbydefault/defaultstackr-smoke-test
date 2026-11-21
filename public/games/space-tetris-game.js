@@ -170,7 +170,7 @@ export function mountSpaceTetris({ canvas, overlay, scoreNode, bestNode, statusN
   sync();
   draw();
   showOverlay(overlay, {
-    kicker: 'NOKIA · 2000', title: 'SPACE TETRIS', copy: 'Stapel satellieten. Vul een rij om die te laten verdwijnen.', action: 'START ▶', onAction: start
+    kicker: 'RETRO LCD · 2000', title: 'SPACE TETRIS', copy: 'Stapel satellieten. Vul een rij om die te laten verdwijnen.', action: 'START ▶', onAction: start
   });
 
   return {

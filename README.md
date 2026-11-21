@@ -1,6 +1,6 @@
 # DefaultStackr arcade
 
-Drie Nokia-era games om een GitHub-push en een DefaultStackr-blue-green-deploy te controleren:
+Drie retro LCD-era games om een GitHub-push en een DefaultStackr-blue-green-deploy te controleren:
 
 - **Snake** (1998) — klassieke slang met energiepunten.
 - **Space Tetris** (2000) — vallende tetromino's met satellieten-thema.

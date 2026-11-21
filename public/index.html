@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#050307">
   <title>DefaultStackr Arcade · Deep Space Edition</title>
-  <meta name="description" content="Zeven Nokia-era klassiekers in een futuristische space-arcade. Speel Snake, Space Tetris, Space Impact, Bounce, Pairs, Lines 96 en Trap! op mobiel en desktop.">
+  <meta name="description" content="Acht Nokia-era klassiekers in een futuristische space-arcade. Speel Snake, Space Tetris, Space Impact, Bounce, Pairs, Lines 96, Trap! en Coaster Park op mobiel en desktop.">
   <link rel="stylesheet" href="/styles.css">
   <script type="module" src="/games/hub.js"></script>
 </head>
@@ -34,15 +34,15 @@
       </svg>
       <span class="brand-word">Default<span class="accent">Stackr</span><small>DEEP SPACE ARCADE</small></span>
     </a>
-    <div class="sector"><span class="sector-dot"></span> SECTOR 07 <span class="sector-sep">/</span> 07 GAMES</div>
+    <div class="sector"><span class="sector-dot"></span> SECTOR 08 <span class="sector-sep">/</span> 08 GAMES</div>
   </header>
 
   <main id="hub" class="hub">
     <section class="intro">
       <div class="eyebrow"><span class="eyebrow-line"></span> INTERSTELLAR ARCADE <span class="eyebrow-number">· 1996 — 2002</span></div>
       <h1>KIES JE <em>SPEL.</em></h1>
-      <p>Zeven klassiekers uit de Nokia-tijd, opnieuw geladen in een futuristische space-arcade. Tik op een spel — het start meteen volledig scherm. Swipe op je telefoon, gebruik de knoppen of het toetsenbord.</p>
-      <div class="intro-stats"><span><b>07</b> GAMES</span><span><b>LCD</b> PIXEL ART</span><span><b>∞</b> REPLAYS</span></div>
+      <p>Acht klassiekers uit de Nokia-tijd, opnieuw geladen in een futuristische space-arcade. Tik op een spel — het start meteen volledig scherm. Swipe op je telefoon, gebruik de knoppen of het toetsenbord.</p>
+      <div class="intro-stats"><span><b>08</b> GAMES</span><span><b>LCD</b> PIXEL ART</span><span><b>∞</b> REPLAYS</span></div>
     </section>
 
     <section class="game-grid" aria-label="Kies een spel">
@@ -95,6 +95,13 @@
         <span class="card-copy">Ontwijk de rollende vallen zo lang mogelijk.</span>
         <span class="card-foot"><span>BEST <b id="card-best-trap">00000</b></span><span class="card-play">SPEEL ▶</span></span>
       </button>
+      <button class="game-card" type="button" data-game="coaster">
+        <span class="card-index">08 <i>/</i> 2003</span>
+        <span class="card-art card-art-coaster" aria-hidden="true"><i></i><i></i><i></i><i></i><b></b></span>
+        <span class="card-name">COASTER PARK</span>
+        <span class="card-copy">Bouw een pretpark, maak gasten blij en word rijk.</span>
+        <span class="card-foot"><span>BEST <b id="card-best-coaster">00000</b></span><span class="card-play">SPEEL ▶</span></span>
+      </button>
     </section>
 
     <p class="below">Klaar voor vertrek? <span>Kies een spel en de missie begint.</span></p>
@@ -141,6 +148,20 @@
         <div id="controls-trap" class="controls" data-controls="controls-trap" hidden>
           <div class="dpad"><span></span><button type="button" data-action="up" aria-label="Omhoog">▲</button><span></span><button type="button" data-action="left" aria-label="Links">◀</button><span class="dpad-center">◇</span><button type="button" data-action="right" aria-label="Rechts">▶</button><span></span><button type="button" data-action="down" aria-label="Omlaag">▼</button><span></span></div>
           <button class="side-key" type="button" data-action="pause">II</button>
+        </div>
+        <div id="controls-coaster" class="controls controls-coaster" data-controls="controls-coaster" hidden>
+          <div class="tool-row">
+            <button class="tool-key active" type="button" data-action="tool:path">PAD</button>
+            <button class="tool-key" type="button" data-action="tool:coaster">COASTER</button>
+            <button class="tool-key" type="button" data-action="tool:shop">SHOP</button>
+            <button class="tool-key" type="button" data-action="tool:tree">BOOM</button>
+            <button class="tool-key" type="button" data-action="tool:demolish">SLOPEN</button>
+          </div>
+          <div class="key-row coaster-actions">
+            <div class="dpad"><span></span><button type="button" data-action="up" aria-label="Omhoog">▲</button><span></span><button type="button" data-action="left" aria-label="Links">◀</button><span class="dpad-center">◇</span><button type="button" data-action="right" aria-label="Rechts">▶</button><span></span><button type="button" data-action="down" aria-label="Omlaag">▼</button><span></span></div>
+            <button class="fire-key" type="button" data-action="fire">PLAATS</button>
+            <button type="button" data-action="pause">II</button>
+          </div>
         </div>
       </div>
       <div class="phone-bottom">

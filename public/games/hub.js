@@ -1,5 +1,6 @@
 import { getBest } from './engine.mjs';
 import { mountBounce } from './bounce-game.js';
+import { mountCoaster } from './coaster-game.js';
 import { mountImpact } from './impact-game.js';
 import { mountLines } from './lines-game.js';
 import { mountPairs } from './pairs-game.js';
@@ -70,6 +71,15 @@ const GAMES = {
     bestKey: 'defaultstackr-nokia-trap-best',
     pad: 5,
     mount: mountTrap
+  },
+  coaster: {
+    title: 'COASTER PARK',
+    kicker: 'NOKIA · 2003',
+    hint: 'Bouw paden, zet attracties neer, 1–5 kiest een tool',
+    controls: 'controls-coaster',
+    bestKey: 'defaultstackr-nokia-coaster-best',
+    pad: 5,
+    mount: mountCoaster
   }
 };
 
@@ -143,7 +153,8 @@ document.querySelectorAll('[data-game]').forEach((card) => {
 exitButton.addEventListener('click', close);
 
 const KEY_ACTIONS = {
-  ArrowUp: 'up', ArrowDown: 'down', ArrowLeft: 'left', ArrowRight: 'right'
+  ArrowUp: 'up', ArrowDown: 'down', ArrowLeft: 'left', ArrowRight: 'right',
+  '1': 'tool:path', '2': 'tool:coaster', '3': 'tool:shop', '4': 'tool:tree', '5': 'tool:demolish'
 };
 document.addEventListener('keydown', (event) => {
   if (!active) return;

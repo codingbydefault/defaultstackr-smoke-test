@@ -20,6 +20,14 @@ const assets = new Map([
   ['/games/space-tetris-game.js', ['games/space-tetris-game.js', JS]],
   ['/games/impact-core.mjs', ['games/impact-core.mjs', JS]],
   ['/games/impact-game.js', ['games/impact-game.js', JS]],
+  ['/games/bounce-core.mjs', ['games/bounce-core.mjs', JS]],
+  ['/games/bounce-game.js', ['games/bounce-game.js', JS]],
+  ['/games/pairs-core.mjs', ['games/pairs-core.mjs', JS]],
+  ['/games/pairs-game.js', ['games/pairs-game.js', JS]],
+  ['/games/lines-core.mjs', ['games/lines-core.mjs', JS]],
+  ['/games/lines-game.js', ['games/lines-game.js', JS]],
+  ['/games/trap-core.mjs', ['games/trap-core.mjs', JS]],
+  ['/games/trap-game.js', ['games/trap-game.js', JS]],
 ]);
 
 http.createServer(async (request, response) => {

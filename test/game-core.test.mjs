@@ -24,9 +24,22 @@ test('eating grows the snake and raises the score', () => {
   assert.equal(next.phase, 'running');
 });
 
-test('wall and body collisions end the run', () => {
-  const wall = { ...newGame(), snake: [{ x: GRID - 1, y: 4 }], phase: 'running' };
-  assert.equal(advance(wall).phase, 'over');
+test('the snake wraps around the edges instead of dying', () => {
+  const right = { ...newGame(), food: null, snake: [{ x: GRID - 1, y: 4 }], direction: 'right', queued: 'right', phase: 'running' };
+  assert.deepEqual(advance(right).snake[0], { x: 0, y: 4 });
+  assert.equal(advance(right).phase, 'running');
+
+  const left = { ...newGame(), food: null, snake: [{ x: 0, y: 4 }], direction: 'left', queued: 'left', phase: 'running' };
+  assert.deepEqual(advance(left).snake[0], { x: GRID - 1, y: 4 });
+
+  const up = { ...newGame(), food: null, snake: [{ x: 4, y: 0 }], direction: 'up', queued: 'up', phase: 'running' };
+  assert.deepEqual(advance(up).snake[0], { x: 4, y: GRID - 1 });
+
+  const down = { ...newGame(), food: null, snake: [{ x: 4, y: GRID - 1 }], direction: 'down', queued: 'down', phase: 'running' };
+  assert.deepEqual(advance(down).snake[0], { x: 4, y: 0 });
+});
+
+test('body collisions still end the run', () => {
   const body = { ...newGame(), snake: [{ x: 5, y: 5 }, { x: 5, y: 6 }, { x: 6, y: 6 }, { x: 6, y: 5 }, { x: 7, y: 5 }], phase: 'running' };
   assert.equal(advance(body).phase, 'over');
 });

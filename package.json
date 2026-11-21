@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "node --check server.mjs && node --check public/game-core.mjs && node --check public/games/engine.mjs && node --check public/games/hub.js && node --check public/games/snake-game.js && node --check public/games/space-tetris-core.mjs && node --check public/games/space-tetris-game.js && node --check public/games/impact-core.mjs && node --check public/games/impact-game.js",
+    "build": "node --check server.mjs && node --check public/game-core.mjs && for f in public/games/*.mjs public/games/*.js; do node --check \"$f\" || exit 1; done",
     "test": "node --test",
     "start": "node server.mjs"
   },

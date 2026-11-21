@@ -36,10 +36,13 @@ export function advance(game, random = Math.random) {
   if (game.phase !== 'running') return game;
   const direction = game.queued;
   const vector = VECTORS[direction];
-  const head = { x: game.snake[0].x + vector.x, y: game.snake[0].y + vector.y };
+  const head = {
+    x: (game.snake[0].x + vector.x + GRID) % GRID,
+    y: (game.snake[0].y + vector.y + GRID) % GRID
+  };
   const ate = game.food && head.x === game.food.x && head.y === game.food.y;
   const body = ate ? game.snake : game.snake.slice(0, -1);
-  if (head.x < 0 || head.x >= GRID || head.y < 0 || head.y >= GRID || body.some(part => part.x === head.x && part.y === head.y)) {
+  if (body.some(part => part.x === head.x && part.y === head.y)) {
     return { ...game, direction, queued: direction, phase: 'over' };
   }
   const snake = [head, ...body];

@@ -3,52 +3,101 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#080b12">
-  <title>DefaultStackr Arcade · Nokia klassiekers</title>
-  <meta name="description" content="Speel Snake, Space Tetris en Space Impact — drie Nokia-era games, speelbaar op mobiel en desktop.">
+  <meta name="theme-color" content="#050307">
+  <title>DefaultStackr Arcade · Deep Space Edition</title>
+  <meta name="description" content="Zeven Nokia-era klassiekers in een futuristische space-arcade. Speel Snake, Space Tetris, Space Impact, Bounce, Pairs, Lines 96 en Trap! op mobiel en desktop.">
   <link rel="stylesheet" href="/styles.css">
   <script type="module" src="/games/hub.js"></script>
 </head>
 <body>
-  <div class="ambient ambient-one" aria-hidden="true"></div><div class="ambient ambient-two" aria-hidden="true"></div>
+  <div class="space" aria-hidden="true">
+    <div class="stars stars-near"></div>
+    <div class="stars stars-far"></div>
+    <div class="nebula nebula-one"></div>
+    <div class="nebula nebula-two"></div>
+    <div class="horizon"><div class="horizon-grid"></div></div>
+    <div class="orbit orbit-one"></div>
+    <div class="orbit orbit-two"></div>
+    <div class="shooting-star shooting-one"></div>
+    <div class="shooting-star shooting-two"></div>
+  </div>
 
   <header class="topbar">
-    <a class="brand" href="/" aria-label="DefaultStackr arcade"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span><span>defaultstackr<span class="brand-dot">.</span><small>ARCADE / BUILD __REVISION__</small></span></a>
-    <div class="top-right"><span class="online"><span></span> SYSTEM ONLINE</span><a href="/healthz" class="health-link">HEALTH <span aria-hidden="true">↗</span></a></div>
+    <a class="brand" href="/" aria-label="DefaultStackr Arcade, naar de game-selectie">
+      <svg class="brand-icon" viewBox="0 0 64 64" aria-hidden="true">
+        <defs><linearGradient id="ds-mark" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e2a8ff"/><stop offset=".5" stop-color="#c37aff"/><stop offset="1" stop-color="#6d36e9"/></linearGradient></defs>
+        <g fill="url(#ds-mark)" transform="rotate(-15 32 32)">
+          <rect x="10" y="17" width="44" height="10" rx="5"/>
+          <rect x="10" y="29" width="44" height="10" rx="5"/>
+          <rect x="10" y="41" width="44" height="10" rx="5"/>
+        </g>
+      </svg>
+      <span class="brand-word">Default<span class="accent">Stackr</span><small>DEEP SPACE ARCADE</small></span>
+    </a>
+    <div class="sector"><span class="sector-dot"></span> SECTOR 07 <span class="sector-sep">/</span> 07 GAMES</div>
   </header>
 
   <main id="hub" class="hub">
     <section class="intro">
-      <div class="eyebrow"><span class="eyebrow-line"></span> AUTO-DEPLOY SMOKE TEST <span class="eyebrow-number">/ 03</span></div>
+      <div class="eyebrow"><span class="eyebrow-line"></span> INTERSTELLAR ARCADE <span class="eyebrow-number">· 1996 — 2002</span></div>
       <h1>KIES JE <em>SPEL.</em></h1>
-      <p>Drie klassiekers uit de Nokia-tijd, opnieuw geladen. Tik op een spel — het start meteen in volledig scherm. Swipe op je telefoon, gebruik de knoppen of het toetsenbord.</p>
+      <p>Zeven klassiekers uit de Nokia-tijd, opnieuw geladen in een futuristische space-arcade. Tik op een spel — het start meteen volledig scherm. Swipe op je telefoon, gebruik de knoppen of het toetsenbord.</p>
+      <div class="intro-stats"><span><b>07</b> GAMES</span><span><b>LCD</b> PIXEL ART</span><span><b>∞</b> REPLAYS</span></div>
     </section>
 
     <section class="game-grid" aria-label="Kies een spel">
       <button class="game-card" type="button" data-game="snake">
-        <span class="card-index">01 / 1998</span>
+        <span class="card-index">01 <i>/</i> 1998</span>
         <span class="card-art card-art-snake" aria-hidden="true"><i></i><i></i><i></i><i></i><b></b></span>
         <span class="card-name">SNAKE</span>
         <span class="card-copy">Verzamel energiepunten. Word niet je eigen staart.</span>
         <span class="card-foot"><span>BEST <b id="card-best-snake">000</b></span><span class="card-play">SPEEL ▶</span></span>
       </button>
       <button class="game-card" type="button" data-game="tetris">
-        <span class="card-index">02 / 2000</span>
+        <span class="card-index">02 <i>/</i> 2000</span>
         <span class="card-art card-art-tetris" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
         <span class="card-name">SPACE TETRIS</span>
         <span class="card-copy">Stapel satellieten, vul rijen en haal hogere niveaus.</span>
         <span class="card-foot"><span>BEST <b id="card-best-tetris">00000</b></span><span class="card-play">SPEEL ▶</span></span>
       </button>
       <button class="game-card" type="button" data-game="impact">
-        <span class="card-index">03 / 2002</span>
+        <span class="card-index">03 <i>/</i> 2002</span>
         <span class="card-art card-art-impact" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
         <span class="card-name">SPACE IMPACT</span>
         <span class="card-copy">Schiet indringers neer en houd je schip in leven.</span>
         <span class="card-foot"><span>BEST <b id="card-best-impact">00000</b></span><span class="card-play">SPEEL ▶</span></span>
       </button>
+      <button class="game-card" type="button" data-game="bounce">
+        <span class="card-index">04 <i>/</i> 2001</span>
+        <span class="card-art card-art-bounce" aria-hidden="true"><i></i><i></i><i></i><i></i><b></b></span>
+        <span class="card-name">BOUNCE</span>
+        <span class="card-copy">Houd de bal in de lucht en breek alle blokken.</span>
+        <span class="card-foot"><span>BEST <b id="card-best-bounce">00000</b></span><span class="card-play">SPEEL ▶</span></span>
+      </button>
+      <button class="game-card" type="button" data-game="pairs">
+        <span class="card-index">05 <i>/</i> 1999</span>
+        <span class="card-art card-art-pairs" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+        <span class="card-name">PAIRS</span>
+        <span class="card-copy">Draai kaarten om en vind alle acht paren.</span>
+        <span class="card-foot"><span>BEST <b id="card-best-pairs">000</b></span><span class="card-play">SPEEL ▶</span></span>
+      </button>
+      <button class="game-card" type="button" data-game="lines">
+        <span class="card-index">06 <i>/</i> 1996</span>
+        <span class="card-art card-art-lines" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
+        <span class="card-name">LINES 96</span>
+        <span class="card-copy">Verplaats ballen en maak vijf van een kleur.</span>
+        <span class="card-foot"><span>BEST <b id="card-best-lines">00000</b></span><span class="card-play">SPEEL ▶</span></span>
+      </button>
+      <button class="game-card" type="button" data-game="trap">
+        <span class="card-index">07 <i>/</i> 2000</span>
+        <span class="card-art card-art-trap" aria-hidden="true"><i></i><i></i><i></i><i></i><b></b></span>
+        <span class="card-name">TRAP!</span>
+        <span class="card-copy">Ontwijk de rollende vallen zo lang mogelijk.</span>
+        <span class="card-foot"><span>BEST <b id="card-best-trap">00000</b></span><span class="card-play">SPEEL ▶</span></span>
+      </button>
     </section>
 
-    <p class="below">Smoke test 003 — automatische GitHub-deploy. <a href="/version">Bekijk versie ↗</a></p>
+    <p class="below">Klaar voor vertrek? <span>Kies een spel en de missie begint.</span></p>
   </main>
 
   <section id="game-view" class="game-view" hidden aria-label="Spel scherm">
@@ -58,9 +107,9 @@
     </div>
 
     <div class="phone">
-      <div class="phone-top"><span class="phone-brand">DEFAULTSTACKR</span><span class="speaker" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span></div>
+      <div class="phone-top"><span class="phone-brand">DEFAULTSTACKR <i>·</i> MISSION DECK</span><span class="speaker" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span></div>
       <div class="lcd">
-        <div class="lcd-bar"><span>● ARCade</span><span id="status">READY</span></div>
+        <div class="lcd-bar"><span>◉ ARCADE</span><span id="status">READY</span></div>
         <div class="lcd-screen">
           <canvas id="game-canvas" role="img" aria-label="Speelveld"></canvas>
           <div id="game-overlay" class="lcd-overlay" hidden></div>
@@ -79,6 +128,20 @@
           <div class="key-row"><button type="button" data-action="up" aria-label="Omhoog">▲</button><button class="fire-key" type="button" data-action="fire" aria-label="Vuren">FIRE</button><button type="button" data-action="down" aria-label="Omlaag">▼</button></div>
           <div class="key-row"><button type="button" data-action="pause">II</button></div>
         </div>
+        <div id="controls-bounce" class="controls" data-controls="controls-bounce" hidden>
+          <div class="key-row"><button type="button" data-action="left" aria-label="Links">◀</button><button type="button" data-action="right" aria-label="Rechts">▶</button><button type="button" data-action="pause">II</button></div>
+        </div>
+        <div id="controls-pairs" class="controls" data-controls="controls-pairs" hidden>
+          <div class="key-row"><button type="button" data-action="pause">II</button><button class="fire-key" type="button" data-action="start">NIEUW</button></div>
+        </div>
+        <div id="controls-lines" class="controls" data-controls="controls-lines" hidden>
+          <div class="dpad"><span></span><button type="button" data-action="up" aria-label="Omhoog">▲</button><span></span><button type="button" data-action="left" aria-label="Links">◀</button><span class="dpad-center">◇</span><button type="button" data-action="right" aria-label="Rechts">▶</button><span></span><button type="button" data-action="down" aria-label="Omlaag">▼</button><span></span></div>
+          <button class="side-key fire-key" type="button" data-action="select">SET</button><button class="side-key" type="button" data-action="pause">II</button>
+        </div>
+        <div id="controls-trap" class="controls" data-controls="controls-trap" hidden>
+          <div class="dpad"><span></span><button type="button" data-action="up" aria-label="Omhoog">▲</button><span></span><button type="button" data-action="left" aria-label="Links">◀</button><span class="dpad-center">◇</span><button type="button" data-action="right" aria-label="Rechts">▶</button><span></span><button type="button" data-action="down" aria-label="Omlaag">▼</button><span></span></div>
+          <button class="side-key" type="button" data-action="pause">II</button>
+        </div>
       </div>
       <div class="phone-bottom">
         <div class="readout"><span>SCORE <b id="score">000</b></span><span>BEST <b id="best">000</b></span></div>
@@ -87,6 +150,6 @@
     </div>
   </section>
 
-  <footer><span>© DEFAULTSTACKR / CODEDBYDEFAULT</span><span>BUILD <code>__REVISION__</code></span></footer>
+  <footer><span>DEFAULTSTACKR <span class="accent">·</span> CODEDBYDEFAULT</span><span>MADE FOR THE STARS <span class="accent">✦</span></span></footer>
 </body>
 </html>

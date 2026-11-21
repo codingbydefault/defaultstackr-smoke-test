@@ -22,7 +22,8 @@ export const SHAPES = Object.fromEntries(Object.entries(BASE).map(([name, cells]
 }));
 
 const PIECE_NAMES = Object.keys(SHAPES);
-const LINE_POINTS = [0, 100, 300, 500, 800];
+const BLOCK_POINTS = 1;
+const LINE_POINTS = 5;
 
 export function emptyBoard() {
   return Array.from({ length: ROWS }, () => Array(COLS).fill(null));
@@ -92,7 +93,9 @@ export function lockPiece(state, random = Math.random) {
     if (y >= 0) state.board[y][x] = state.piece.type;
   }
   const cleared = clearLines(state.board);
-  state.score += LINE_POINTS[cleared] * state.level;
+  // 1 point per placed block (4 for a tetromino) plus 5 per completed line.
+  const placedBlocks = SHAPES[state.piece.type][state.piece.rot].length;
+  state.score += placedBlocks * BLOCK_POINTS + cleared * LINE_POINTS;
   state.lines += cleared;
   state.level = 1 + Math.floor(state.lines / 10);
   state.drop = 0;

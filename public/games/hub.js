@@ -1,7 +1,11 @@
 import { getBest } from './engine.mjs';
+import { mountBounce } from './bounce-game.js';
 import { mountImpact } from './impact-game.js';
+import { mountLines } from './lines-game.js';
+import { mountPairs } from './pairs-game.js';
 import { mountSnake } from './snake-game.js';
 import { mountSpaceTetris } from './space-tetris-game.js';
+import { mountTrap } from './trap-game.js';
 
 const GAMES = {
   snake: {
@@ -10,6 +14,7 @@ const GAMES = {
     hint: 'Swipe of pijltjes om te sturen',
     controls: 'controls-snake',
     bestKey: 'defaultstackr-nokia-snake-best',
+    pad: 3,
     mount: mountSnake
   },
   tetris: {
@@ -18,6 +23,7 @@ const GAMES = {
     hint: 'Swipe om te verplaatsen · omhoog = draaien',
     controls: 'controls-tetris',
     bestKey: 'defaultstackr-nokia-space-tetris-best',
+    pad: 5,
     mount: mountSpaceTetris
   },
   impact: {
@@ -26,7 +32,44 @@ const GAMES = {
     hint: 'Swipe om te bewegen · tik = vuren',
     controls: 'controls-impact',
     bestKey: 'defaultstackr-nokia-impact-best',
+    pad: 5,
     mount: mountImpact
+  },
+  bounce: {
+    title: 'BOUNCE',
+    kicker: 'NOKIA · 2001',
+    hint: 'Houd de bal in de lucht met ◀ ▶',
+    controls: 'controls-bounce',
+    bestKey: 'defaultstackr-nokia-bounce-best',
+    pad: 5,
+    mount: mountBounce
+  },
+  pairs: {
+    title: 'PAIRS',
+    kicker: 'NOKIA · 1999',
+    hint: 'Tik twee kaarten aan · zoek de paren',
+    controls: 'controls-pairs',
+    bestKey: 'defaultstackr-nokia-pairs-best',
+    pad: 3,
+    mount: mountPairs
+  },
+  lines: {
+    title: 'LINES 96',
+    kicker: 'NOKIA · 1996',
+    hint: 'Tik een bal, tik een vak · vijf van een kleur',
+    controls: 'controls-lines',
+    bestKey: 'defaultstackr-nokia-lines-best',
+    pad: 5,
+    mount: mountLines
+  },
+  trap: {
+    title: 'TRAP!',
+    kicker: 'NOKIA · 2000',
+    hint: 'Ontwijk de vallen met ◀ ▶ ▲ ▼',
+    controls: 'controls-trap',
+    bestKey: 'defaultstackr-nokia-trap-best',
+    pad: 5,
+    mount: mountTrap
   }
 };
 
@@ -44,7 +87,7 @@ const exitButton = document.querySelector('#exit');
 
 for (const [id, game] of Object.entries(GAMES)) {
   const node = document.querySelector(`#card-best-${id}`);
-  if (node) node.textContent = String(getBest(game.bestKey)).padStart(id === 'snake' ? 3 : 5, '0');
+  if (node) node.textContent = String(getBest(game.bestKey)).padStart(game.pad, '0');
 }
 
 let active = null;
@@ -71,9 +114,9 @@ function launch(id) {
   titleNode.textContent = game.title;
   kickerNode.textContent = game.kicker;
   hintNode.textContent = game.hint;
-  scoreNode.textContent = '000';
-  bestNode.textContent = String(getBest(game.bestKey)).padStart(game.title === 'SNAKE' ? 3 : 5, '0');
-  statusNode.textContent = 'LAUNCHING';
+  scoreNode.textContent = '0'.repeat(game.pad);
+  bestNode.textContent = String(getBest(game.bestKey)).padStart(game.pad, '0');
+  statusNode.textContent = 'READY';
 
   document.querySelectorAll('[data-controls]').forEach((group) => {
     group.hidden = group.dataset.controls !== game.controls;
@@ -110,10 +153,10 @@ document.addEventListener('keydown', (event) => {
     active.input(action);
   } else if (event.code === 'Space') {
     event.preventDefault();
-    active.input(current === 'impact' ? 'fire' : 'start');
+    active.input(current === 'impact' ? 'fire' : current === 'lines' ? 'select' : 'start');
   } else if (event.key === 'Enter') {
     event.preventDefault();
-    active.input('start');
+    active.input(current === 'lines' ? 'select' : 'start');
   } else if (event.key.toLowerCase() === 'p') {
     event.preventDefault();
     active.input('pause');

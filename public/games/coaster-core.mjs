@@ -1,8 +1,10 @@
 // Compact, original park-management logic for Coaster Park. Pure and
 // deterministic when a random function is injected.
 
-export const W = 14;
-export const H = 12;
+// A tall grid whose aspect matches the LCD screen, so the playfield fills
+// the display instead of being letterboxed inside it.
+export const W = 12;
+export const H = 18;
 
 // Each attraction has its own price, ticket fee, thrill value and reliability,
 // so the ride dropdown is a real choice instead of a cosmetic one.

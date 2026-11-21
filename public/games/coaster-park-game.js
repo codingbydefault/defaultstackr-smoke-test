@@ -1,7 +1,7 @@
 import { ATTRACTIONS, COSTS, H, RIDE_TYPES, REPAIR_COST, W, index, newPark, parkScore, place, repairAll, stepPark } from './coaster-core.mjs';
 import { beep, bindButtons, createCanvas, createLoop, getBest, hideOverlay, onSwipe, setBest, showOverlay } from './engine.mjs';
 
-const CELL = 24;
+const CELL = 30;
 const CW = W * CELL;
 const CH = H * CELL;
 const BEST_KEY = 'defaultstackr-nokia-coaster-best';

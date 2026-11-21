@@ -1,4 +1,4 @@
-import { COLS, ROWS, SHAPES, ghostY, hardDrop, movePiece, newTetris, rotatePiece, softDrop, stepTetris } from './space-tetris-core.mjs';
+import { COLS, ROWS, SHAPES, ghostY, hardDrop, holdPiece, movePiece, newTetris, rotatePiece, softDrop, stepTetris } from './space-tetris-core.mjs';
 import { beep, bindButtons, createCanvas, createLoop, getBest, hideOverlay, onSwipe, setBest, showOverlay } from './engine.mjs';
 
 const CELL = 12;
@@ -20,7 +20,9 @@ export function mountSpaceTetris({ canvas, overlay, scoreNode, bestNode, statusN
   function sync() {
     scoreNode.textContent = String(state.score).padStart(5, '0');
     bestNode.textContent = String(best).padStart(5, '0');
-    statusNode.textContent = state.over ? 'GAME OVER' : paused ? 'PAUSED' : `LEVEL ${state.level} · ${state.lines} LINES`;
+    const hold = state.hold ? ` · HOLD ${state.hold}` : '';
+    const combo = state.combo > 0 ? ` · COMBO x${state.combo + 1}` : '';
+    statusNode.textContent = state.over ? 'GAME OVER' : paused ? 'PAUSED' : `LEVEL ${state.level} · ${state.lines} LINES${hold}${combo}`;
   }
 
   function start() {
@@ -50,6 +52,8 @@ export function mountSpaceTetris({ canvas, overlay, scoreNode, bestNode, statusN
     if (action === 'left') movePiece(state, -1);
     else if (action === 'right') movePiece(state, 1);
     else if (action === 'rotate') rotatePiece(state);
+    else if (action === 'rotate-ccw') rotatePiece(state, -1);
+    else if (action === 'hold') holdPiece(state);
     else if (action === 'soft') softDrop(state);
     else if (action === 'drop') {
       const cleared = hardDrop(state);
@@ -80,12 +84,34 @@ export function mountSpaceTetris({ canvas, overlay, scoreNode, bestNode, statusN
     ctx.fillRect(x * CELL + 1, y * CELL + 1, CELL - 2, CELL - 2);
   }
 
-  function pieceCells(type, rotation, offsetX, offsetY) {
+  function pieceCells(type, rotation, offsetX, offsetY, shade = '#0f380f') {
     for (const [cx, cy] of SHAPES[type][rotation]) {
       const x = offsetX + cx;
       const y = offsetY + cy;
-      if (y >= 0) cell(x, y);
+      if (y >= 0) cell(x, y, shade);
     }
+  }
+
+  // A tiny LCD-style hold preview, drawn inside the existing canvas.
+  function drawHold() {
+    if (!state.hold) return;
+    const cells = SHAPES[state.hold][0];
+    const xs = cells.map(([cx]) => cx);
+    const ys = cells.map(([, cy]) => cy);
+    const minX = Math.min(...xs);
+    const maxX = Math.max(...xs);
+    const minY = Math.min(...ys);
+    const maxY = Math.max(...ys);
+    const x0 = COLS - 5;
+    const y0 = 1;
+    const dx = x0 + Math.floor((4 - (maxX - minX + 1)) / 2) - minX;
+    const dy = y0 + Math.floor((4 - (maxY - minY + 1)) / 2) - minY;
+    ctx.fillStyle = 'rgba(15, 56, 15, .14)';
+    ctx.fillRect(x0 * CELL, y0 * CELL, 4 * CELL, 4 * CELL);
+    ctx.strokeStyle = 'rgba(15, 56, 15, .45)';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(x0 * CELL + 0.5, y0 * CELL + 0.5, 4 * CELL - 1, 4 * CELL - 1);
+    pieceCells(state.hold, 0, dx, dy, 'rgba(15, 56, 15, .65)');
   }
 
   function draw() {
@@ -103,16 +129,31 @@ export function mountSpaceTetris({ canvas, overlay, scoreNode, bestNode, statusN
     state.board.forEach((row, y) => {
       row.forEach((type, x) => { if (type) cell(x, y, '#306230'); });
     });
+    drawHold();
     const ghost = ghostY(state);
     if (ghost !== state.piece.y) {
-      ctx.strokeStyle = '#306230';
+      // Translucent fill + darker outline: the landing spot stays readable.
+      ctx.fillStyle = 'rgba(15, 56, 15, .10)';
+      ctx.strokeStyle = 'rgba(15, 56, 15, .55)';
       ctx.lineWidth = 2;
       for (const [cx, cy] of SHAPES[state.piece.type][state.piece.rot]) {
-        ctx.strokeRect((state.piece.x + cx) * CELL + 2, (ghost + cy) * CELL + 2, CELL - 4, CELL - 4);
+        const gx = (state.piece.x + cx) * CELL + 2;
+        const gy = (ghost + cy) * CELL + 2;
+        ctx.fillRect(gx, gy, CELL - 4, CELL - 4);
+        ctx.strokeRect(gx, gy, CELL - 4, CELL - 4);
       }
     }
     pieceCells(state.piece.type, state.piece.rot, state.piece.x, state.piece.y);
   }
+
+  // Extra keys live here so the shared hub keyboard map stays untouched.
+  function onKeyDown(event) {
+    if (event.ctrlKey || event.metaKey || event.altKey) return;
+    const key = event.key.length === 1 ? event.key.toLowerCase() : event.key;
+    if (key === 'c') { event.preventDefault(); input('hold'); }
+    else if (key === 'z') { event.preventDefault(); input('rotate-ccw'); }
+  }
+  document.addEventListener('keydown', onKeyDown);
 
   const stopSwipe = onSwipe(canvas, (direction) => {
     input(direction === 'left' || direction === 'right' ? direction : 'drop');
@@ -139,6 +180,7 @@ export function mountSpaceTetris({ canvas, overlay, scoreNode, bestNode, statusN
       loop.stop();
       stopSwipe();
       stopButtons();
+      document.removeEventListener('keydown', onKeyDown);
     }
   };
 }

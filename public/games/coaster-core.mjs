@@ -6,13 +6,15 @@
 export const W = 12;
 export const H = 18;
 
-// Each attraction has its own price, ticket fee, thrill value and reliability,
-// so the ride dropdown is a real choice instead of a cosmetic one.
+// Attractions have their own price, ticket fee, thrill, reliability and
+// footprint. Rotating a footprint swaps its width and height.
 export const ATTRACTIONS = {
-  carousel: { label: 'CARROUSEL', cost: 70, fee: 4, thrill: 8, breakRate: 0.012, rideTime: 1.0 },
-  coaster: { label: 'COASTER', cost: 120, fee: 8, thrill: 15, breakRate: 0.03, rideTime: 1.6 },
-  ferris: { label: 'SKY WHEEL', cost: 150, fee: 6, thrill: 11, breakRate: 0.018, rideTime: 1.3 },
-  shop: { label: 'SHOP', cost: 60, fee: 4, thrill: 6, breakRate: 0, rideTime: 0.8 }
+  carousel: { label: 'CARROUSEL', cost: 70, fee: 4, thrill: 8, breakRate: 0.012, rideTime: 1.0, size: [1, 1] },
+  coaster: { label: 'COASTER', cost: 120, fee: 8, thrill: 15, breakRate: 0.03, rideTime: 1.6, size: [2, 1] },
+  ferris: { label: 'SKY WHEEL', cost: 150, fee: 6, thrill: 11, breakRate: 0.018, rideTime: 1.3, size: [2, 2] },
+  shop: { label: 'SHOP', cost: 60, fee: 4, thrill: 6, breakRate: 0, rideTime: 0.8, size: [1, 1] },
+  burger: { label: 'BURGER SHOP', cost: 50, fee: 5, thrill: 7, breakRate: 0, rideTime: 0.8, size: [1, 1] },
+  info: { label: 'INFO-CENTER', cost: 80, fee: 3, thrill: 10, breakRate: 0, rideTime: 1.0, size: [1, 1], guestBonus: true }
 };
 
 export const RIDE_TYPES = ['carousel', 'coaster', 'ferris'];
@@ -24,7 +26,9 @@ export const COSTS = {
   carousel: ATTRACTIONS.carousel.cost,
   coaster: ATTRACTIONS.coaster.cost,
   ferris: ATTRACTIONS.ferris.cost,
-  shop: ATTRACTIONS.shop.cost
+  shop: ATTRACTIONS.shop.cost,
+  burger: ATTRACTIONS.burger.cost,
+  info: ATTRACTIONS.info.cost
 };
 
 const DAY_SECONDS = 8;
@@ -33,6 +37,19 @@ const MAX_GUESTS = 24;
 export const isRide = (type) => RIDE_TYPES.includes(type);
 export const index = (x, y) => y * W + x;
 export const inside = (x, y) => x >= 0 && x < W && y >= 0 && y < H;
+
+export function footprint(type, rotation = 0) {
+  const size = ATTRACTIONS[type]?.size || [1, 1];
+  return rotation % 2 ? [size[1], size[0]] : [size[0], size[1]];
+}
+
+export function cellsOf(object) {
+  const cells = [];
+  for (let y = object.y; y < object.y + object.h; y += 1) {
+    for (let x = object.x; x < object.x + object.w; x += 1) cells.push([x, y]);
+  }
+  return cells;
+}
 
 export function newPark() {
   return {
@@ -52,17 +69,37 @@ export function newPark() {
   };
 }
 
-function objectAt(state, x, y) {
-  return state.objects.find((object) => object.x === x && object.y === y);
+export function objectAtCell(state, x, y) {
+  return state.objects.find((object) =>
+    x >= object.x && x < object.x + object.w && y >= object.y && y < object.y + object.h);
 }
 
-export function place(state, x, y, tool) {
+export function canPlace(state, x, y, tool, rotation = 0) {
+  if (state.over) return { ok: false, reason: 'GAME OVER' };
+  if (!(tool in COSTS)) return { ok: false, reason: 'ONBEKEND' };
+  const [w, h] = footprint(tool, rotation);
+  if (x < 0 || y < 0 || x + w > W || y + h > H) return { ok: false, reason: 'BUITEN' };
+  for (let dy = 0; dy < h; dy += 1) {
+    for (let dx = 0; dx < w; dx += 1) {
+      const cx = x + dx;
+      const cy = y + dy;
+      if (state.tiles[index(cx, cy)] !== 'grass' || objectAtCell(state, cx, cy)) {
+        return { ok: false, reason: 'BEZET' };
+      }
+    }
+  }
+  const cost = COSTS[tool];
+  if (state.cash < cost) return { ok: false, reason: 'TE WEINIG GELD' };
+  return { ok: true, cost, w, h };
+}
+
+export function place(state, x, y, tool, rotation = 0) {
   if (state.over) return { ok: false, reason: 'GAME OVER' };
   if (!inside(x, y)) return { ok: false, reason: 'BUITEN' };
   const at = index(x, y);
 
   if (tool === 'demolish') {
-    const object = objectAt(state, x, y);
+    const object = objectAtCell(state, x, y);
     if (state.tiles[at] === 'path') {
       state.tiles[at] = 'grass';
       return { ok: true, refund: 0 };
@@ -74,16 +111,25 @@ export function place(state, x, y, tool) {
     return { ok: true, refund };
   }
 
-  if (!(tool in COSTS)) return { ok: false, reason: 'ONBEKEND' };
-  if (state.tiles[at] !== 'grass' || objectAt(state, x, y)) return { ok: false, reason: 'BEZET' };
-  const cost = COSTS[tool];
-  if (state.cash < cost) return { ok: false, reason: 'TE WEINIG GELD' };
+  const check = canPlace(state, x, y, tool, rotation);
+  if (!check.ok) return check;
 
-  state.cash -= cost;
-  state.spent += cost;
+  state.cash -= check.cost;
+  state.spent += check.cost;
   if (tool === 'path') state.tiles[at] = 'path';
-  else state.objects.push({ id: state.nextId++, type: tool, x, y, broken: false, repair: 0, revenue: 0 });
-  return { ok: true, cost };
+  else state.objects.push({
+    id: state.nextId++,
+    type: tool,
+    x,
+    y,
+    w: check.w,
+    h: check.h,
+    rotation,
+    broken: false,
+    repair: 0,
+    revenue: 0
+  });
+  return { ok: true, cost: check.cost };
 }
 
 export function repairAll(state) {
@@ -127,12 +173,14 @@ export function findPath(state, from, to) {
 }
 
 function pathBeside(state, object) {
-  for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
-    const x = object.x + dx;
-    const y = object.y + dy;
-    if (!inside(x, y)) continue;
-    const at = index(x, y);
-    if (state.tiles[at] === 'path') return at;
+  for (const [x, y] of cellsOf(object)) {
+    for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+      const nx = x + dx;
+      const ny = y + dy;
+      if (!inside(nx, ny)) continue;
+      const at = index(nx, ny);
+      if (state.tiles[at] === 'path') return at;
+    }
   }
   return -1;
 }
@@ -238,7 +286,8 @@ export function stepPark(state, dt, random = Math.random) {
   }
 
   state.spawnTimer += dt;
-  const interval = 1.4 + (100 - state.rating) / 60;
+  const infoCenters = state.objects.filter((object) => ATTRACTIONS[object.type]?.guestBonus).length;
+  const interval = Math.max(0.8, 1.4 + (100 - state.rating) / 60 - infoCenters * 0.2);
   if (state.spawnTimer >= interval && state.guests.length < MAX_GUESTS) {
     state.spawnTimer = 0;
     spawnGuest(state, random);

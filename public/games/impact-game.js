@@ -22,7 +22,11 @@ export function mountImpact({ canvas, overlay, scoreNode, bestNode, statusNode, 
   function sync() {
     scoreNode.textContent = String(state.score).padStart(5, '0');
     bestNode.textContent = String(best).padStart(5, '0');
-    statusNode.textContent = state.over ? 'SHIP LOST' : paused ? 'PAUSED' : `LIVES ${state.lives} · WAVE ${state.level}`;
+    const base = state.over ? 'SHIP LOST' : paused ? 'PAUSED' : `LIVES ${state.lives} · WAVE ${state.level}`;
+    const tags = [];
+    if (state.weaponTime > 0) tags.push(`3WAY ${state.weaponTime.toFixed(1)}S`);
+    if (state.shield > 0) tags.push('SHIELD');
+    statusNode.textContent = tags.length ? `${base} · ${tags.join(' · ')}` : base;
   }
 
   function start() {
@@ -62,9 +66,13 @@ export function mountImpact({ canvas, overlay, scoreNode, bestNode, statusNode, 
     if (paused || state.over) return;
     if (heldDirection) moveShip(state, heldDirection, dt);
     if (firing) fireImpact(state);
-    const { destroyed, hit } = stepImpact(state, dt);
+    const { destroyed, hit, collected, bossDown, shielded, bossSpawn } = stepImpact(state, dt);
     if (destroyed) beep(true, 780, 0.05);
     if (hit) beep(true, 180, 0.16);
+    if (shielded) beep(true, 520, 0.12);
+    if (collected.length) beep(true, collected.includes('repair') ? 980 : 660, 0.09);
+    if (bossSpawn) beep(true, 240, 0.2);
+    if (bossDown) beep(true, 120, 0.3);
     if (state.score > best) best = setBest(BEST_KEY, state.score, best);
     if (state.over && !ended) {
       ended = true;
@@ -79,6 +87,16 @@ export function mountImpact({ canvas, overlay, scoreNode, bestNode, statusNode, 
     ctx.fillStyle = color;
     ctx.fillRect(x * CELL, y * CELL, w * CELL, h * CELL);
   }
+
+  function pixels(x, y, coords) {
+    for (const [px, py] of coords) fill(x + px, y + py, 1, 1);
+  }
+
+  const PICKUP_PIXELS = {
+    weapon: [[0, 0], [2, 0], [1, 1], [0, 2], [2, 2]],
+    shield: [[0, 0], [1, 0], [2, 0], [0, 1], [2, 1], [0, 2], [1, 2], [2, 2]],
+    repair: [[1, 0], [0, 1], [1, 1], [2, 1], [1, 2]]
+  };
 
   function draw() {
     ctx.fillStyle = '#9bbc0f';
@@ -102,6 +120,23 @@ export function mountImpact({ canvas, overlay, scoreNode, bestNode, statusNode, 
       ctx.fillStyle = '#9bbc0f';
       ctx.fillRect((x + 1) * CELL, (y + 1) * CELL, CELL, CELL);
       if (enemy.type === 'heavy') ctx.fillRect((x + 2) * CELL, (y + 1) * CELL, CELL, CELL);
+      if (enemy.type === 'boss') {
+        ctx.fillRect((x + 3) * CELL, (y + 1) * CELL, CELL, CELL);
+        ctx.fillRect((x + 1) * CELL, (y + 3) * CELL, CELL, CELL);
+        ctx.fillRect((x + 5) * CELL, (y + 3) * CELL, CELL, CELL);
+        const barY = Math.max(0, y - 1);
+        const ratio = Math.max(0, Math.min(1, enemy.hp / (enemy.maxHp || size.hp)));
+        fill(x, barY, size.w, 1);
+        ctx.fillStyle = '#9bbc0f';
+        ctx.fillRect((x + 1) * CELL + 1, barY * CELL + 2, (size.w - 2) * CELL - 2, CELL - 4);
+        ctx.fillStyle = '#0f380f';
+        ctx.fillRect((x + 1) * CELL + 2, barY * CELL + 3, ((size.w - 2) * CELL - 4) * ratio, CELL - 6);
+      }
+    }
+    for (const pickup of state.pickups) {
+      const x = Math.floor(pickup.x);
+      const y = Math.floor(pickup.y);
+      pixels(x, y, PICKUP_PIXELS[pickup.type] || PICKUP_PIXELS.repair);
     }
     if (!state.over && (state.invuln <= 0 || Math.floor(elapsed * 12) % 2 === 0)) {
       const x = state.ship.x;

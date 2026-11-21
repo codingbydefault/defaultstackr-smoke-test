@@ -108,11 +108,11 @@ a:hover { color: var(--glow); }
 .card-art-pairs i:nth-child(2) { left: 50px; top: 12px; width: 30px; height: 26px; background: var(--mid); }
 .card-art-pairs i:nth-child(3) { left: 12px; top: 44px; width: 30px; height: 26px; background: var(--mid); }
 .card-art-pairs i:nth-child(4) { left: 50px; top: 44px; width: 30px; height: 26px; }
-.card-art-lines i:nth-child(1) { left: 12px; top: 28px; width: 13px; height: 13px; border-radius: 50%; }
-.card-art-lines i:nth-child(2) { left: 30px; top: 28px; width: 13px; height: 13px; border-radius: 50%; }
-.card-art-lines i:nth-child(3) { left: 48px; top: 28px; width: 13px; height: 13px; border-radius: 50%; }
-.card-art-lines i:nth-child(4) { left: 66px; top: 28px; width: 13px; height: 13px; border-radius: 50%; }
-.card-art-lines i:nth-child(5) { left: 84px; top: 28px; width: 13px; height: 13px; border-radius: 50%; background: var(--mid); }
+.card-art-racer i:nth-child(1) { left: 48px; top: 6px; width: 4px; height: 14px; background: var(--mid); }
+.card-art-racer i:nth-child(2) { left: 48px; top: 32px; width: 4px; height: 14px; background: var(--mid); }
+.card-art-racer i:nth-child(3) { left: 48px; top: 58px; width: 4px; height: 14px; background: var(--mid); }
+.card-art-racer i:nth-child(4) { left: 20px; top: 30px; width: 14px; height: 20px; background: var(--mid); }
+.card-art-racer b { left: 66px; top: 56px; width: 16px; height: 22px; }
 .card-art-trap i:nth-child(1) { left: 18px; top: 20px; width: 14px; height: 14px; border-radius: 50%; background: var(--mid); }
 .card-art-trap i:nth-child(2) { left: 66px; top: 18px; width: 14px; height: 14px; border-radius: 50%; background: var(--mid); }
 .card-art-trap i:nth-child(3) { left: 44px; top: 46px; width: 14px; height: 14px; border-radius: 50%; background: var(--mid); }

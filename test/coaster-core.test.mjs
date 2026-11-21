@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { ATTRACTIONS, REPAIR_COST, RIDE_TYPES, W, findPath, index, newPark, parkScore, place, repairAll, stepPark } from '../public/games/coaster-core.mjs';
+import { ATTRACTIONS, COSTS, REPAIR_COST, RIDE_TYPES, W, findPath, footprint, index, newPark, parkScore, place, repairAll, stepPark } from '../public/games/coaster-core.mjs';
 
 const FIXED = () => 0.9;
 
@@ -50,7 +50,7 @@ test('guests spend money at a coaster beside a path', () => {
 test('the scenario is won at the target rating, cash and day', () => {
   const state = newPark();
   state.cash = 2000;
-  for (let x = 0; x < 5; x += 1) place(state, x, 0, 'coaster');
+  for (let x = 0; x < W; x += 2) place(state, x, 0, 'coaster');
   state.cash = 1000;
   state.day = 3;
   state.time = 16;
@@ -86,7 +86,7 @@ test('the ride dropdown choices have distinct prices and rating impact', () => {
 test('guests pay the fee of the chosen ride', () => {
   const state = newPark();
   buildRow(state, 8, 6);
-  place(state, 2, 7, 'ferris');
+  place(state, 2, 6, 'ferris');
   for (let i = 0; i < 160; i += 1) stepPark(state, 0.1, FIXED);
   const ride = state.objects[0];
   assert.ok(ride.revenue > 0, `expected ferris revenue, got ${ride.revenue}`);
@@ -106,4 +106,58 @@ test('repairAll fixes broken rides for a fee', () => {
   assert.equal(state.cash, before - result.cost);
   assert.ok(state.objects.every((object) => !object.broken));
   assert.equal(repairAll(state).ok, false);
+});
+
+test('attractions have footprints and rotation swaps their footprint', () => {
+  assert.deepEqual(footprint('carousel'), [1, 1]);
+  assert.deepEqual(footprint('coaster'), [2, 1]);
+  assert.deepEqual(footprint('coaster', 1), [1, 2]);
+  assert.deepEqual(footprint('ferris'), [2, 2]);
+  assert.deepEqual(footprint('shop'), [1, 1]);
+  assert.deepEqual(footprint('burger'), [1, 1]);
+  assert.deepEqual(footprint('info'), [1, 1]);
+});
+
+test('multi-cell attractions occupy every cell and refuse overlap', () => {
+  const state = newPark();
+  assert.equal(place(state, 2, 2, 'coaster').ok, true);
+  const coaster = state.objects[0];
+  assert.equal(coaster.w, 2);
+  assert.equal(coaster.h, 1);
+  assert.equal(place(state, 3, 2, 'tree').ok, false);
+  assert.equal(place(state, 2, 3, 'carousel').ok, true);
+  assert.equal(place(state, 4, 2, 'ferris').ok, true);
+  assert.equal(state.objects.find((object) => object.type === 'ferris').w, 2);
+});
+
+test('a rotated coaster is placed vertically', () => {
+  const state = newPark();
+  assert.equal(place(state, 2, 2, 'coaster', 1).ok, true);
+  const coaster = state.objects[0];
+  assert.equal(coaster.w, 1);
+  assert.equal(coaster.h, 2);
+  assert.equal(coaster.rotation, 1);
+  assert.equal(place(state, 2, 3, 'shop').ok, false);
+  assert.equal(place(state, 3, 2, 'shop').ok, true);
+});
+
+test('the burger shop is a cheap single-cell build option', () => {
+  const state = newPark();
+  assert.equal(COSTS.burger, 50);
+  assert.equal(place(state, 4, 4, 'burger').ok, true);
+  assert.equal(state.cash, 450);
+  assert.equal(state.objects[0].type, 'burger');
+  assert.equal(ATTRACTIONS.burger.label, 'BURGER SHOP');
+});
+
+test('the info center adds rating and earns fees beside a path', () => {
+  const state = newPark();
+  assert.equal(COSTS.info, 80);
+  assert.equal(ATTRACTIONS.info.guestBonus, true);
+  buildRow(state, 8, 6);
+  assert.equal(place(state, 2, 7, 'info').ok, true);
+  assert.equal(state.cash, 390);
+  for (let i = 0; i < 160; i += 1) stepPark(state, 0.1, FIXED);
+  assert.ok(state.objects[0].revenue > 0, 'expected info center fees');
+  assert.ok(state.rating > 15);
 });

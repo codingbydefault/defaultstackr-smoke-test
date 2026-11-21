@@ -2,8 +2,8 @@ import { getBest } from './engine.mjs';
 import { mountBounce } from './bounce-game.js';
 import { mountCoaster } from './coaster-park-game.js';
 import { mountImpact } from './impact-game.js';
-import { mountLines } from './lines-game.js';
 import { mountPairs } from './pairs-game.js';
+import { mountRacer } from './racer-game.js';
 import { mountSnake } from './snake-game.js';
 import { mountSpaceTetris } from './space-tetris-game.js';
 import { mountTrap } from './trap-game.js';
@@ -54,14 +54,14 @@ const GAMES = {
     pad: 3,
     mount: mountPairs
   },
-  lines: {
-    title: 'LINES 96',
-    kicker: 'NOKIA · 1996',
-    hint: 'Tik een bal, tik een vak · vijf van een kleur',
-    controls: 'controls-lines',
-    bestKey: 'defaultstackr-nokia-lines-best',
+  racer: {
+    title: 'POLE POSITION',
+    kicker: 'NOKIA · 2003',
+    hint: 'Stuur met ◀ ▶ · tik FIRE voor boost',
+    controls: 'controls-racer',
+    bestKey: 'defaultstackr-nokia-racer-best',
     pad: 5,
-    mount: mountLines
+    mount: mountRacer
   },
   trap: {
     title: 'TRAP!',
@@ -75,7 +75,7 @@ const GAMES = {
   coaster: {
     title: 'COASTER PARK',
     kicker: 'NOKIA · 2003',
-    hint: 'Kies in BOUW · tik op het veld · R rit · S snelheid · F repareren',
+    hint: 'Kies in BOUW · tik op het veld · R draaien · S snelheid · F repareren',
     controls: 'controls-coaster',
     bestKey: 'defaultstackr-nokia-coaster-best',
     pad: 5,
@@ -162,7 +162,7 @@ exitButton.addEventListener('click', close);
 const KEY_ACTIONS = {
   ArrowUp: 'up', ArrowDown: 'down', ArrowLeft: 'left', ArrowRight: 'right',
   '1': 'tool:path', '2': 'tool:shop', '3': 'tool:tree', '4': 'tool:demolish',
-  r: 'ride:next', s: 'speed', f: 'repair'
+  r: 'rotate', s: 'speed', f: 'repair'
 };
 document.addEventListener('keydown', (event) => {
   if (!active) return;
@@ -175,16 +175,16 @@ document.addEventListener('keydown', (event) => {
     active.input(action);
   } else if (event.code === 'Space') {
     event.preventDefault();
-    active.input(current === 'impact' ? 'fire' : current === 'lines' ? 'select' : 'start');
+    active.input(current === 'impact' || current === 'racer' ? 'fire' : 'start');
   } else if (event.key === 'Enter') {
     event.preventDefault();
-    active.input(current === 'lines' ? 'select' : 'start');
+    active.input('start');
   } else if (event.key.toLowerCase() === 'p') {
     event.preventDefault();
     active.input('pause');
   }
 });
 
-const initial = location.hash.slice(1);
+const initial = location.hash.slice(1) === 'lines' ? 'racer' : location.hash.slice(1);
 if (GAMES[initial]) launch(initial);
 else close();

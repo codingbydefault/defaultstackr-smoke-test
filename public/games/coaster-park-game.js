@@ -1,4 +1,4 @@
-import { ATTRACTIONS, COSTS, H, RIDE_TYPES, REPAIR_COST, W, index, newPark, parkScore, place, repairAll, stepPark } from './coaster-core.mjs';
+import { ATTRACTIONS, COSTS, H, RIDE_TYPES, REPAIR_COST, W, canPlace, footprint, index, newPark, parkScore, place, repairAll, stepPark } from './coaster-core.mjs';
 import { beep, bindButtons, createCanvas, createLoop, getBest, hideOverlay, onSwipe, setBest, showOverlay } from './engine.mjs';
 
 const CELL = 30;
@@ -6,7 +6,7 @@ const CW = W * CELL;
 const CH = H * CELL;
 const BEST_KEY = 'defaultstackr-nokia-coaster-best';
 const SPEEDS = [1, 2, 3];
-const TOOLS = ['path', ...RIDE_TYPES, 'shop', 'tree', 'demolish'];
+const TOOLS = ['path', ...RIDE_TYPES, 'shop', 'burger', 'info', 'tree', 'demolish'];
 const LABELS = { path: 'PAD', shop: 'SHOP', tree: 'BOOM', demolish: 'SLOPEN' };
 
 const toolLabel = (tool) => ATTRACTIONS[tool]?.label || LABELS[tool] || tool.toUpperCase();
@@ -22,6 +22,7 @@ export function mountCoaster({ canvas, overlay, scoreNode, bestNode, statusNode,
   let state = newPark();
   let best = getBest(BEST_KEY);
   let tool = 'path';
+  let rotation = 0;
   let cursor = index(Math.floor(W / 2), Math.floor(H / 2));
   let speedIndex = 0;
   let paused = false;
@@ -61,9 +62,16 @@ export function mountCoaster({ canvas, overlay, scoreNode, bestNode, statusNode,
     sync();
   }
 
+  function rotate() {
+    rotation = (rotation + 1) % 4;
+    beep(true, 600, 0.05);
+    notify(true, `DRAAI ${rotation * 90}°`);
+  }
+
   function start() {
     state = newPark();
     cursor = index(Math.floor(W / 2), Math.floor(H / 2));
+    rotation = 0;
     speedIndex = 0;
     if (speedNode) speedNode.textContent = `»${SPEEDS[0]}`;
     paused = false;
@@ -97,7 +105,7 @@ export function mountCoaster({ canvas, overlay, scoreNode, bestNode, statusNode,
     if (paused || state.over) return;
     const x = cursor % W;
     const y = Math.floor(cursor / W);
-    const result = place(state, x, y, tool);
+    const result = place(state, x, y, tool, rotation);
     if (result.ok) {
       notify(true, tool === 'demolish' ? 'GESLOOPT' : `${toolLabel(tool)} · -€${result.cost ?? 0}`);
     } else {
@@ -132,6 +140,7 @@ export function mountCoaster({ canvas, overlay, scoreNode, bestNode, statusNode,
     }
     if (action === 'speed') { setSpeed(speedIndex + 1); return; }
     if (action === 'repair') { doRepair(); return; }
+    if (action === 'rotate') { rotate(); return; }
     if (paused || state.over) return;
     if (['up', 'down', 'left', 'right'].includes(action)) move(action);
     else if (action === 'fire' || action === 'select') build();
@@ -163,54 +172,72 @@ export function mountCoaster({ canvas, overlay, scoreNode, bestNode, statusNode,
   }
 
   function drawObject(object) {
-    const x = object.x * CELL;
-    const y = object.y * CELL;
+    const px = object.x * CELL;
+    const py = object.y * CELL;
+    const pw = object.w * CELL;
+    const ph = object.h * CELL;
+    const cx = px + pw / 2;
+    const cy = py + ph / 2;
+    const size = Math.min(pw, ph);
     const ink = object.broken ? '#7a8f1a' : '#9bbc0f';
-    fill(object.x, object.y, 1, 1, '#0f380f');
+    fill(object.x, object.y, object.w, object.h, '#0f380f');
     ctx.fillStyle = ink;
     ctx.strokeStyle = ink;
 
     if (object.type === 'coaster') {
       ctx.lineWidth = 3;
       ctx.beginPath();
-      ctx.arc(x + CELL / 2, y + CELL / 2 - 2, CELL / 2 - 5, Math.PI, Math.PI * 2.6);
+      ctx.arc(cx, cy - 2, size / 2 - 5, Math.PI, Math.PI * 2.6);
       ctx.stroke();
-      ctx.fillRect(x + 5, y + CELL - 7, 4, 4);
-      ctx.fillRect(x + CELL - 9, y + CELL - 7, 4, 4);
+      ctx.fillRect(cx - size / 2 + 4, py + ph - 7, 4, 4);
+      ctx.fillRect(cx + size / 2 - 8, py + ph - 7, 4, 4);
     } else if (object.type === 'ferris') {
       ctx.lineWidth = 2;
-      const r = CELL / 2 - 5;
+      const r = size / 2 - 5;
       ctx.beginPath();
-      ctx.arc(x + CELL / 2, y + CELL / 2, r, 0, Math.PI * 2);
+      ctx.arc(cx, cy, r, 0, Math.PI * 2);
       ctx.stroke();
       for (let a = 0; a < 4; a += 1) {
         const angle = a * Math.PI / 4;
         ctx.beginPath();
-        ctx.moveTo(x + CELL / 2 - Math.cos(angle) * r, y + CELL / 2 - Math.sin(angle) * r);
-        ctx.lineTo(x + CELL / 2 + Math.cos(angle) * r, y + CELL / 2 + Math.sin(angle) * r);
+        ctx.moveTo(cx - Math.cos(angle) * r, cy - Math.sin(angle) * r);
+        ctx.lineTo(cx + Math.cos(angle) * r, cy + Math.sin(angle) * r);
         ctx.stroke();
       }
     } else if (object.type === 'carousel') {
-      ctx.fillRect(x + 4, y + 7, CELL - 8, 3);
+      ctx.fillRect(cx - size / 2 + 4, cy - size / 2 + 7, size - 8, 3);
       ctx.beginPath();
-      ctx.moveTo(x + 2, y + 10);
-      ctx.lineTo(x + CELL / 2, y + 3);
-      ctx.lineTo(x + CELL - 2, y + 10);
+      ctx.moveTo(cx - size / 2 + 2, cy - size / 2 + 10);
+      ctx.lineTo(cx, cy - size / 2 + 3);
+      ctx.lineTo(cx + size / 2 - 2, cy - size / 2 + 10);
       ctx.closePath();
       ctx.fill();
-      ctx.fillRect(x + 6, y + 13, 3, 6);
-      ctx.fillRect(x + CELL - 9, y + 13, 3, 6);
+      ctx.fillRect(cx - size / 2 + 6, cy + 3, 3, 6);
+      ctx.fillRect(cx + size / 2 - 9, cy + 3, 3, 6);
     } else if (object.type === 'shop') {
       ctx.beginPath();
-      ctx.moveTo(x + 3, y + 10);
-      ctx.lineTo(x + CELL / 2, y + 3);
-      ctx.lineTo(x + CELL - 3, y + 10);
+      ctx.moveTo(cx - size / 2 + 3, cy);
+      ctx.lineTo(cx, cy - size / 2 + 3);
+      ctx.lineTo(cx + size / 2 - 3, cy);
       ctx.closePath();
       ctx.fill();
-      ctx.fillRect(x + 6, y + 13, CELL - 12, 3);
+      ctx.fillRect(cx - size / 2 + 6, cy + 3, size - 12, 3);
+    } else if (object.type === 'burger') {
+      ctx.beginPath();
+      ctx.arc(cx, cy - 1, size / 2 - 7, Math.PI, Math.PI * 2);
+      ctx.fill();
+      ctx.fillRect(cx - size / 2 + 6, cy + 1, size - 12, 3);
+      ctx.beginPath();
+      ctx.arc(cx, cy + 5, size / 2 - 8, 0, Math.PI);
+      ctx.fill();
+    } else if (object.type === 'info') {
+      ctx.lineWidth = 2;
+      ctx.strokeRect(px + 5, py + 4, pw - 10, ph - 8);
+      ctx.fillRect(cx - 1, cy - 6, 2, 2);
+      ctx.fillRect(cx - 1, cy - 2, 2, 7);
     } else {
       ctx.beginPath();
-      ctx.arc(x + CELL / 2, y + CELL / 2 - 2, CELL / 2 - 7, 0, Math.PI * 2);
+      ctx.arc(cx, cy - 2, size / 2 - 7, 0, Math.PI * 2);
       ctx.fill();
     }
   }
@@ -238,17 +265,27 @@ export function mountCoaster({ canvas, overlay, scoreNode, bestNode, statusNode,
       ctx.fillRect(guest.x * CELL + CELL / 2 - 2, guest.y * CELL + 3, 4, 4);
     }
     if (!paused && !state.over) {
-      ctx.strokeStyle = Math.floor(performance.now() / 350) % 2 ? '#0f380f' : '#306230';
-      ctx.lineWidth = 2;
       const x = cursor % W;
       const y = Math.floor(cursor / W);
-      ctx.strokeRect(x * CELL + 1, y * CELL + 1, CELL - 2, CELL - 2);
+      const [fw, fh] = tool === 'demolish' ? [1, 1] : footprint(tool, rotation);
+      const check = tool === 'demolish'
+        ? { ok: Boolean(state.objects.length || state.tiles[index(x, y)] === 'path') }
+        : canPlace(state, x, y, tool, rotation);
+      const blink = Math.floor(performance.now() / 350) % 2;
+      if (fw > 1 || fh > 1) {
+        ctx.fillStyle = check.ok ? (blink ? 'rgba(15,56,15,.22)' : 'rgba(48,98,15,.18)') : 'rgba(122,143,26,.24)';
+        ctx.fillRect(x * CELL, y * CELL, fw * CELL, fh * CELL);
+      }
+      ctx.strokeStyle = check.ok ? (blink ? '#0f380f' : '#306230') : '#7a8f1a';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(x * CELL + 1, y * CELL + 1, fw * CELL - 2, fh * CELL - 2);
     }
     ctx.fillStyle = '#0f380f';
     ctx.font = 'bold 9px ui-monospace, monospace';
     ctx.textBaseline = 'top';
     ctx.textAlign = 'left';
-    ctx.fillText(`${toolLabel(tool)} €${COSTS[tool] ?? 0}`, 3, 2);
+    const turn = rotation && tool !== 'demolish' && tool !== 'path' ? ` ↻${rotation * 90}°` : '';
+    ctx.fillText(`${toolLabel(tool)} €${COSTS[tool] ?? 0}${turn}`, 3, 2);
     ctx.textAlign = 'right';
     ctx.fillText(`€${Math.round(state.cash)}`, CW - 3, 2);
     ctx.textAlign = 'left';
@@ -282,6 +319,7 @@ export function mountCoaster({ canvas, overlay, scoreNode, bestNode, statusNode,
     '[data-action="select"]': build,
     '[data-action="speed"]': () => setSpeed(speedIndex + 1),
     '[data-action="repair"]': doRepair,
+    '[data-action="rotate"]': rotate,
     '[data-action="tool:path"]': () => setTool('path'),
     '[data-action="tool:shop"]': () => setTool('shop'),
     '[data-action="tool:tree"]': () => setTool('tree'),
@@ -292,7 +330,7 @@ export function mountCoaster({ canvas, overlay, scoreNode, bestNode, statusNode,
   draw();
   showOverlay(overlay, {
     kicker: 'NOKIA · 2003', title: 'COASTER PARK',
-    copy: `Kies in BOUW, tik op het veld en bereik rating 60 en €1000 op dag 3. Reparatie: €${REPAIR_COST} per rit.`,
+    copy: `Kies in BOUW, tik op het veld en draai grote attracties met ↻. Bereik rating 60 en €1000 op dag 3. Reparatie: €${REPAIR_COST} per rit.`,
     action: 'START ▶', onAction: start
   });
 

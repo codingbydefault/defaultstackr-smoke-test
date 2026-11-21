@@ -24,6 +24,8 @@ export const SHAPES = Object.fromEntries(Object.entries(BASE).map(([name, cells]
 const PIECE_NAMES = Object.keys(SHAPES);
 const BLOCK_POINTS = 1;
 const LINE_POINTS = 5;
+const MOVE_POINTS = 1;
+const COMBO_POINTS = 2;
 
 export function emptyBoard() {
   return Array.from({ length: ROWS }, () => Array(COLS).fill(null));
@@ -42,6 +44,8 @@ export function collides(board, piece, dx = 0, dy = 0, rotation = piece.rot) {
 function spawn(state, random) {
   const type = PIECE_NAMES[Math.min(PIECE_NAMES.length - 1, Math.floor(random() * PIECE_NAMES.length))];
   state.piece = { type, rot: 0, x: 3, y: 0 };
+  // A fresh piece may be held exactly once.
+  state.canHold = true;
   if (collides(state.board, state.piece)) state.over = true;
 }
 
@@ -49,6 +53,9 @@ export function newTetris(random = Math.random) {
   const state = {
     board: emptyBoard(),
     piece: null,
+    hold: null,
+    canHold: true,
+    combo: -1,
     score: 0,
     lines: 0,
     level: 1,
@@ -65,11 +72,28 @@ export function movePiece(state, dx) {
   return true;
 }
 
-export function rotatePiece(state) {
+// direction 1 rotates clockwise, -1 rotates counter-clockwise.
+export function rotatePiece(state, direction = 1) {
   if (state.over) return false;
-  const rotation = (state.piece.rot + 1) % 4;
+  const rotation = (state.piece.rot + direction + 4) % 4;
   if (collides(state.board, state.piece, 0, 0, rotation)) return false;
   state.piece = { ...state.piece, rot: rotation };
+  return true;
+}
+
+export function holdPiece(state, random = Math.random) {
+  if (state.over || !state.canHold || !state.piece) return false;
+  const current = state.piece.type;
+  if (state.hold) {
+    state.piece = { type: state.hold, rot: 0, x: 3, y: 0 };
+    state.hold = current;
+  } else {
+    state.hold = current;
+    spawn(state, random);
+  }
+  // Both branches (including the spawn above) lock hold until the next piece.
+  state.canHold = false;
+  if (collides(state.board, state.piece)) state.over = true;
   return true;
 }
 
@@ -93,9 +117,13 @@ export function lockPiece(state, random = Math.random) {
     if (y >= 0) state.board[y][x] = state.piece.type;
   }
   const cleared = clearLines(state.board);
-  // 1 point per placed block (4 for a tetromino) plus 5 per completed line.
+  // The first clear of a chain has combo 0, so the classic 1/block + 5/line
+  // contract (4, 9, 14 points) stays exactly the same. Only extra chains bonus.
+  if (cleared > 0) state.combo += 1;
+  else state.combo = -1;
+  const comboBonus = cleared > 0 ? COMBO_POINTS * state.combo : 0;
   const placedBlocks = SHAPES[state.piece.type][state.piece.rot].length;
-  state.score += placedBlocks * BLOCK_POINTS + cleared * LINE_POINTS;
+  state.score += placedBlocks * BLOCK_POINTS + cleared * LINE_POINTS + comboBonus;
   state.lines += cleared;
   state.level = 1 + Math.floor(state.lines / 10);
   state.drop = 0;
@@ -103,10 +131,11 @@ export function lockPiece(state, random = Math.random) {
   return cleared;
 }
 
-export function softDrop(state, random = Math.random) {
+export function softDrop(state, random = Math.random, scoreMove = true) {
   if (state.over) return { moved: false, cleared: 0 };
   if (!collides(state.board, state.piece, 0, 1)) {
     state.piece = { ...state.piece, y: state.piece.y + 1 };
+    if (scoreMove) state.score += MOVE_POINTS;
     return { moved: true, cleared: 0 };
   }
   return { moved: false, cleared: lockPiece(state, random) };
@@ -114,9 +143,12 @@ export function softDrop(state, random = Math.random) {
 
 export function hardDrop(state, random = Math.random) {
   if (state.over) return 0;
+  let dropped = 0;
   while (!collides(state.board, state.piece, 0, 1)) {
     state.piece = { ...state.piece, y: state.piece.y + 1 };
+    dropped += 1;
   }
+  state.score += dropped * MOVE_POINTS;
   return lockPiece(state, random);
 }
 
@@ -133,7 +165,8 @@ export function stepTetris(state, dt, random = Math.random) {
   let cleared = 0;
   while (state.drop >= interval && !state.over) {
     state.drop -= interval;
-    cleared += softDrop(state, random).cleared;
+    // Gravity is free: only an explicit soft drop is worth a point per cell.
+    cleared += softDrop(state, random, false).cleared;
   }
   return { cleared };
 }

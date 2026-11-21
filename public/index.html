@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#050307">
   <title>DefaultStackr Arcade · Deep Space Edition</title>
-  <meta name="description" content="Acht Nokia-era klassiekers in een futuristische space-arcade. Speel Snake, Space Tetris, Space Impact, Bounce, Pairs, Lines 96, Trap! en Coaster Park op mobiel en desktop.">
+  <meta name="description" content="Acht Nokia-era klassiekers in een futuristische space-arcade. Speel Snake, Space Tetris, Space Impact, Bounce, Pairs, Pole Position, Trap! en Coaster Park op mobiel en desktop.">
   <link rel="stylesheet" href="/styles.css">
   <script type="module" src="/games/hub.js"></script>
 </head>
@@ -39,7 +39,7 @@
 
   <main id="hub" class="hub">
     <section class="intro">
-      <div class="eyebrow"><span class="eyebrow-line"></span> INTERSTELLAR ARCADE <span class="eyebrow-number">· 1996 — 2002</span></div>
+      <div class="eyebrow"><span class="eyebrow-line"></span> INTERSTELLAR ARCADE <span class="eyebrow-number">· 1996 — 2003</span></div>
       <h1>KIES JE <em>SPEL.</em></h1>
       <p>Acht klassiekers uit de Nokia-tijd, opnieuw geladen in een futuristische space-arcade. Tik op een spel — het start meteen volledig scherm. Swipe op je telefoon, gebruik de knoppen of het toetsenbord.</p>
       <div class="intro-stats"><span><b>08</b> GAMES</span><span><b>LCD</b> PIXEL ART</span><span><b>∞</b> REPLAYS</span></div>
@@ -81,12 +81,12 @@
         <span class="card-copy">Draai kaarten om en vind alle acht paren.</span>
         <span class="card-foot"><span>BEST <b id="card-best-pairs">000</b></span><span class="card-play">SPEEL ▶</span></span>
       </button>
-      <button class="game-card" type="button" data-game="lines">
-        <span class="card-index">06 <i>/</i> 1996</span>
-        <span class="card-art card-art-lines" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
-        <span class="card-name">LINES 96</span>
-        <span class="card-copy">Verplaats ballen en maak vijf van een kleur.</span>
-        <span class="card-foot"><span>BEST <b id="card-best-lines">00000</b></span><span class="card-play">SPEEL ▶</span></span>
+      <button class="game-card" type="button" data-game="racer">
+        <span class="card-index">06 <i>/</i> 2003</span>
+        <span class="card-art card-art-racer" aria-hidden="true"><i></i><i></i><i></i><i></i><b></b></span>
+        <span class="card-name">POLE POSITION</span>
+        <span class="card-copy">Rijd de weg vol traffic voorbij en tank nitro voor een boost.</span>
+        <span class="card-foot"><span>BEST <b id="card-best-racer">00000</b></span><span class="card-play">SPEEL ▶</span></span>
       </button>
       <button class="game-card" type="button" data-game="trap">
         <span class="card-index">07 <i>/</i> 2000</span>
@@ -141,9 +141,9 @@
         <div id="controls-pairs" class="controls" data-controls="controls-pairs" hidden>
           <div class="key-row"><button type="button" data-action="pause">II</button><button class="fire-key" type="button" data-action="start">NIEUW</button></div>
         </div>
-        <div id="controls-lines" class="controls" data-controls="controls-lines" hidden>
-          <div class="dpad"><span></span><button type="button" data-action="up" aria-label="Omhoog">▲</button><span></span><button type="button" data-action="left" aria-label="Links">◀</button><span class="dpad-center">◇</span><button type="button" data-action="right" aria-label="Rechts">▶</button><span></span><button type="button" data-action="down" aria-label="Omlaag">▼</button><span></span></div>
-          <button class="side-key fire-key" type="button" data-action="select">SET</button><button class="side-key" type="button" data-action="pause">II</button>
+        <div id="controls-racer" class="controls" data-controls="controls-racer" hidden>
+          <div class="key-row"><button type="button" data-action="left" aria-label="Links">◀</button><button class="fire-key" type="button" data-action="fire" aria-label="Boost">BOOST</button><button type="button" data-action="right" aria-label="Rechts">▶</button></div>
+          <div class="key-row"><button type="button" data-action="pause">II</button></div>
         </div>
         <div id="controls-trap" class="controls" data-controls="controls-trap" hidden>
           <div class="dpad"><span></span><button type="button" data-action="up" aria-label="Omhoog">▲</button><span></span><button type="button" data-action="left" aria-label="Links">◀</button><span class="dpad-center">◇</span><button type="button" data-action="right" aria-label="Rechts">▶</button><span></span><button type="button" data-action="down" aria-label="Omlaag">▼</button><span></span></div>
@@ -159,9 +159,12 @@
                 <option value="coaster" selected>COASTER · €120</option>
                 <option value="ferris">SKY WHEEL · €150</option>
                 <option value="shop">SHOP · €60</option>
+                <option value="burger">BURGER SHOP · €50</option>
+                <option value="info">INFO-CENTER · €80</option>
                 <option value="tree">BOOM · €10</option>
               </select>
             </label>
+            <button class="func-key" type="button" data-action="rotate" aria-label="Attractie draaien">DRAAI ↻</button>
             <button class="tool-key" type="button" data-action="tool:demolish">SLOPEN</button>
             <button class="fire-key place-key" type="button" data-action="fire">PLAATS</button>
             <button class="func-key" type="button" data-action="speed">SNELHEID <b>»1</b></button>

@@ -158,11 +158,19 @@ body.playing .topbar, body.playing footer, body.playing .space { display: none; 
 .ov-action { margin-top: 6px; padding: 10px 20px; border: 0; border-radius: 2px; background: var(--ink); color: var(--lcd); font-size: 11px; font-weight: 900; letter-spacing: .14em; }
 .phone-keypad { display: flex; align-items: center; justify-content: center; min-height: 122px; padding-top: 14px; }
 .controls { display: flex; align-items: center; justify-content: center; gap: 14px; width: 100%; }
-.controls-coaster { flex-direction: column; gap: 9px; }
-.tool-row { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; }
+.controls-coaster { flex-direction: column; gap: 0; }
+.coaster-bar { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; width: 100%; }
+.game-view.compact-keypad .phone-keypad { min-height: 0; padding-top: 10px; }
 .tool-key { min-width: 0; padding: 7px 9px; border: 1px solid #6c507d; border-radius: 7px; background: linear-gradient(#3b2a49, #24172f); color: #cbb8dc; font: 800 9px/1 ui-monospace, monospace; letter-spacing: .08em; touch-action: manipulation; }
 .tool-key.active { border-color: var(--violet); background: linear-gradient(#8a45c5, #5b2492); color: #fff; box-shadow: 0 0 14px #bd5cff66; }
-.coaster-actions { gap: 12px; }
+.build-pick { display: flex; align-items: center; gap: 6px; padding: 3px 6px 3px 8px; border: 1px solid #6c507d; border-radius: 7px; background: linear-gradient(#3b2a49, #24172f); }
+.build-pick > span { color: #cbb8dc; font: 800 9px/1 ui-monospace, monospace; letter-spacing: .08em; }
+.build-pick select { width: 152px; border: 0; border-radius: 5px; background: #1d1227; color: #f1e4fb; padding: 5px 4px; font: 800 9px/1 ui-monospace, monospace; letter-spacing: .04em; touch-action: manipulation; }
+.build-pick:focus-within { border-color: var(--violet); box-shadow: 0 0 14px #bd5cff66; }
+.build-pick:focus-within > span { color: var(--glow); }
+.func-key { padding: 7px 10px; border: 1px solid #6c507d; border-radius: 7px; background: linear-gradient(#3b2a49, #24172f); color: #cbb8dc; font: 800 9px/1 ui-monospace, monospace; letter-spacing: .08em; touch-action: manipulation; }
+.func-key b { color: var(--glow); }
+.place-key { font-size: 11px !important; padding: 7px 14px; }
 .dpad { display: grid; grid-template-columns: repeat(3, 48px); grid-template-rows: repeat(3, 38px); gap: 4px; }
 .dpad-center { display: flex; align-items: center; justify-content: center; color: #8b76a0; font-size: 18px; }
 .dpad button, .key-row button, .side-key { min-width: 48px; min-height: 42px; padding: 0 12px; border: 1px solid #6c507d; border-radius: 9px; background: linear-gradient(#3b2a49, #24172f); color: #f1e4fb; font-size: 15px; font-weight: 900; box-shadow: 0 3px 0 #100a16, inset 0 1px #8a6aa0; touch-action: manipulation; }
@@ -173,6 +181,7 @@ body.playing .topbar, body.playing footer, body.playing .space { display: none; 
 .phone-bottom { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 12px 8px 0; color: #d5c2e2; font: 800 10px/1 ui-monospace, monospace; letter-spacing: .12em; }
 .readout { display: flex; gap: 16px; }
 .readout b { color: var(--glow); }
+.readout b.low { color: #ff8ba7; }
 .exit { border: 1px solid #795287; border-radius: 8px; background: #2a1b35; color: #f1e4fb; padding: 9px 13px; font-size: 10px; font-weight: 900; letter-spacing: .12em; }
 .game-view:fullscreen { justify-content: center; background: var(--night); padding: 18px; }
 

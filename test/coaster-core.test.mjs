@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { W, findPath, index, newPark, parkScore, place, stepPark } from '../public/games/coaster-core.mjs';
+import { ATTRACTIONS, REPAIR_COST, RIDE_TYPES, W, findPath, index, newPark, parkScore, place, repairAll, stepPark } from '../public/games/coaster-core.mjs';
 
 const FIXED = () => 0.9;
 
@@ -67,4 +67,43 @@ test('bankruptcy ends the run and score is positive', () => {
   assert.equal(state.won, false);
   assert.ok(parkScore(state) >= 0);
   assert.ok(W > 0);
+});
+
+test('the ride dropdown choices have distinct prices and rating impact', () => {
+  assert.deepEqual(RIDE_TYPES, ['carousel', 'coaster', 'ferris']);
+  const parks = RIDE_TYPES.map((type) => {
+    const state = newPark();
+    assert.equal(place(state, 1, 1, type).ok, true);
+    stepPark(state, 0.1, FIXED);
+    return state;
+  });
+  assert.deepEqual(parks.map((state) => state.cash), [430, 380, 350]);
+  assert.ok(parks[1].rating > parks[0].rating);
+  assert.ok(parks[2].rating > parks[0].rating);
+  assert.ok(parks[1].rating > parks[2].rating);
+});
+
+test('guests pay the fee of the chosen ride', () => {
+  const state = newPark();
+  buildRow(state, 8, 6);
+  place(state, 2, 7, 'ferris');
+  for (let i = 0; i < 160; i += 1) stepPark(state, 0.1, FIXED);
+  const ride = state.objects[0];
+  assert.ok(ride.revenue > 0, `expected ferris revenue, got ${ride.revenue}`);
+  assert.equal(ride.revenue % ATTRACTIONS.ferris.fee, 0);
+});
+
+test('repairAll fixes broken rides for a fee', () => {
+  const state = newPark();
+  place(state, 2, 2, 'carousel');
+  place(state, 4, 2, 'coaster');
+  state.objects.forEach((object) => { object.broken = true; object.repair = 4; });
+  const before = state.cash;
+  const result = repairAll(state);
+  assert.equal(result.ok, true);
+  assert.equal(result.count, 2);
+  assert.equal(result.cost, 2 * REPAIR_COST);
+  assert.equal(state.cash, before - result.cost);
+  assert.ok(state.objects.every((object) => !object.broken));
+  assert.equal(repairAll(state).ok, false);
 });

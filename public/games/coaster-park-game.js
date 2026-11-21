@@ -1,19 +1,29 @@
-import { COSTS, H, W, index, newPark, parkScore, place, stepPark } from './coaster-core.mjs';
+import { ATTRACTIONS, COSTS, H, RIDE_TYPES, REPAIR_COST, W, index, newPark, parkScore, place, repairAll, stepPark } from './coaster-core.mjs';
 import { beep, bindButtons, createCanvas, createLoop, getBest, hideOverlay, onSwipe, setBest, showOverlay } from './engine.mjs';
 
 const CELL = 24;
 const CW = W * CELL;
 const CH = H * CELL;
 const BEST_KEY = 'defaultstackr-nokia-coaster-best';
-const TOOLS = ['path', 'coaster', 'shop', 'tree', 'demolish'];
-const LABELS = { path: 'PAD', coaster: 'COASTER', shop: 'SHOP', tree: 'BOOM', demolish: 'SLOPEN' };
+const SPEEDS = [1, 2, 3];
+const TOOLS = ['path', ...RIDE_TYPES, 'shop', 'tree', 'demolish'];
+const LABELS = { path: 'PAD', shop: 'SHOP', tree: 'BOOM', demolish: 'SLOPEN' };
 
-export function mountCoaster({ canvas, overlay, scoreNode, bestNode, statusNode, controls }) {
+const toolLabel = (tool) => ATTRACTIONS[tool]?.label || LABELS[tool] || tool.toUpperCase();
+const money = (value) => {
+  const amount = Math.round(value);
+  return `${amount < 0 ? '-' : ''}${String(Math.abs(amount)).padStart(4, '0')}`;
+};
+
+export function mountCoaster({ canvas, overlay, scoreNode, bestNode, statusNode, balanceNode, controls }) {
   const ctx = createCanvas(canvas, CW, CH);
+  const buildSelect = controls.querySelector('#build-select');
+  const speedNode = controls.querySelector('[data-action="speed"] b');
   let state = newPark();
   let best = getBest(BEST_KEY);
   let tool = 'path';
   let cursor = index(Math.floor(W / 2), Math.floor(H / 2));
+  let speedIndex = 0;
   let paused = false;
   let ended = false;
   let message = 'BOUW je park';
@@ -24,19 +34,43 @@ export function mountCoaster({ canvas, overlay, scoreNode, bestNode, statusNode,
   function sync() {
     scoreNode.textContent = String(parkScore(state)).padStart(5, '0');
     bestNode.textContent = String(best).padStart(5, '0');
+    if (balanceNode) {
+      balanceNode.textContent = money(state.cash);
+      balanceNode.classList.toggle('low', state.cash < 100);
+    }
     statusNode.textContent = state.over
       ? (state.won ? 'DOEL BEHAALD' : 'FAILLIET')
       : paused ? 'PAUSED' : `DAG ${state.day} · ${state.guests.length} G · ★${state.rating}`;
   }
 
+  function setTool(next) {
+    if (!TOOLS.includes(next)) return;
+    tool = next;
+    controls.querySelectorAll('.tool-key').forEach((button) => {
+      button.classList.toggle('active', button.dataset.action === `tool:${next}`);
+    });
+    // Demolish is a separate button, so keep the last build choice selected.
+    if (buildSelect && next !== 'demolish') buildSelect.value = next;
+    sync();
+  }
+
+  function setSpeed(nextIndex) {
+    speedIndex = nextIndex % SPEEDS.length;
+    if (speedNode) speedNode.textContent = `»${SPEEDS[speedIndex]}`;
+    beep(true, 520, 0.04);
+    sync();
+  }
+
   function start() {
     state = newPark();
-    tool = 'path';
     cursor = index(Math.floor(W / 2), Math.floor(H / 2));
+    speedIndex = 0;
+    if (speedNode) speedNode.textContent = `»${SPEEDS[0]}`;
     paused = false;
     ended = false;
     message = 'BOUW je park';
     messageTimer = 2;
+    setTool('path');
     hideOverlay(overlay);
     sync();
     loop.start();
@@ -52,20 +86,30 @@ export function mountCoaster({ canvas, overlay, scoreNode, bestNode, statusNode,
     sync();
   }
 
+  function notify(ok, text) {
+    beep(true, ok ? 700 : 180, ok ? 0.05 : 0.08);
+    message = text;
+    messageTimer = 1.6;
+    sync();
+  }
+
   function build() {
     if (paused || state.over) return;
     const x = cursor % W;
     const y = Math.floor(cursor / W);
     const result = place(state, x, y, tool);
     if (result.ok) {
-      beep(true, 700, 0.05);
-      message = tool === 'demolish' ? 'GESLOOPT' : `${LABELS[tool]} · -€${result.cost ?? 0}`;
+      notify(true, tool === 'demolish' ? 'GESLOOPT' : `${toolLabel(tool)} · -€${result.cost ?? 0}`);
     } else {
-      beep(true, 180, 0.08);
-      message = result.reason;
+      notify(false, result.reason);
     }
-    messageTimer = 1.6;
-    sync();
+  }
+
+  function doRepair() {
+    if (paused || state.over) return;
+    const result = repairAll(state);
+    if (result.ok) notify(true, `${result.count} GEREPT · -€${result.cost}`);
+    else notify(false, result.reason);
   }
 
   function move(direction) {
@@ -80,24 +124,21 @@ export function mountCoaster({ canvas, overlay, scoreNode, bestNode, statusNode,
   function input(action) {
     if (action === 'pause') { togglePause(); return; }
     if (action === 'start') { start(); return; }
-    if (action.startsWith('tool:')) {
-      const next = action.slice(5);
-      if (TOOLS.includes(next)) {
-        tool = next;
-        controls.querySelectorAll('.tool-key').forEach((button) => {
-          button.classList.toggle('active', button.dataset.action === `tool:${next}`);
-        });
-        sync();
-      }
+    if (action.startsWith('tool:')) { setTool(action.slice(5)); return; }
+    if (action === 'ride:next') {
+      const current = RIDE_TYPES.indexOf(tool);
+      setTool(RIDE_TYPES[(current + 1) % RIDE_TYPES.length]);
       return;
     }
+    if (action === 'speed') { setSpeed(speedIndex + 1); return; }
+    if (action === 'repair') { doRepair(); return; }
     if (paused || state.over) return;
     if (['up', 'down', 'left', 'right'].includes(action)) move(action);
     else if (action === 'fire' || action === 'select') build();
   }
 
   function update(dt) {
-    if (!paused && !state.over) stepPark(state, dt);
+    if (!paused && !state.over) stepPark(state, dt * SPEEDS[speedIndex]);
     if (messageTimer > 0) messageTimer = Math.max(0, messageTimer - dt);
     const score = parkScore(state);
     if (score > best) best = setBest(BEST_KEY, score, best);
@@ -107,7 +148,7 @@ export function mountCoaster({ canvas, overlay, scoreNode, bestNode, statusNode,
         kicker: state.won ? 'PARK VOLTOOID' : 'PARK GESLOTEN',
         title: state.won ? 'Gefeliciteerd!' : 'Game over.',
         copy: state.won
-          ? `Dag ${state.day} · rating ${state.rating} · €${state.cash}.`
+          ? `Dag ${state.day} · rating ${state.rating} · €${Math.round(state.cash)}.`
           : `Het geld is op. Score ${score}.`,
         action: 'OPNIEUW ▶',
         onAction: start
@@ -124,19 +165,42 @@ export function mountCoaster({ canvas, overlay, scoreNode, bestNode, statusNode,
   function drawObject(object) {
     const x = object.x * CELL;
     const y = object.y * CELL;
+    const ink = object.broken ? '#7a8f1a' : '#9bbc0f';
+    fill(object.x, object.y, 1, 1, '#0f380f');
+    ctx.fillStyle = ink;
+    ctx.strokeStyle = ink;
+
     if (object.type === 'coaster') {
-      fill(object.x, object.y, 1, 1, '#0f380f');
-      ctx.strokeStyle = object.broken ? '#7a8f1a' : '#9bbc0f';
       ctx.lineWidth = 3;
       ctx.beginPath();
       ctx.arc(x + CELL / 2, y + CELL / 2 - 2, CELL / 2 - 5, Math.PI, Math.PI * 2.6);
       ctx.stroke();
-      ctx.fillStyle = '#9bbc0f';
       ctx.fillRect(x + 5, y + CELL - 7, 4, 4);
       ctx.fillRect(x + CELL - 9, y + CELL - 7, 4, 4);
+    } else if (object.type === 'ferris') {
+      ctx.lineWidth = 2;
+      const r = CELL / 2 - 5;
+      ctx.beginPath();
+      ctx.arc(x + CELL / 2, y + CELL / 2, r, 0, Math.PI * 2);
+      ctx.stroke();
+      for (let a = 0; a < 4; a += 1) {
+        const angle = a * Math.PI / 4;
+        ctx.beginPath();
+        ctx.moveTo(x + CELL / 2 - Math.cos(angle) * r, y + CELL / 2 - Math.sin(angle) * r);
+        ctx.lineTo(x + CELL / 2 + Math.cos(angle) * r, y + CELL / 2 + Math.sin(angle) * r);
+        ctx.stroke();
+      }
+    } else if (object.type === 'carousel') {
+      ctx.fillRect(x + 4, y + 7, CELL - 8, 3);
+      ctx.beginPath();
+      ctx.moveTo(x + 2, y + 10);
+      ctx.lineTo(x + CELL / 2, y + 3);
+      ctx.lineTo(x + CELL - 2, y + 10);
+      ctx.closePath();
+      ctx.fill();
+      ctx.fillRect(x + 6, y + 13, 3, 6);
+      ctx.fillRect(x + CELL - 9, y + 13, 3, 6);
     } else if (object.type === 'shop') {
-      fill(object.x, object.y, 1, 1, '#0f380f');
-      ctx.fillStyle = '#9bbc0f';
       ctx.beginPath();
       ctx.moveTo(x + 3, y + 10);
       ctx.lineTo(x + CELL / 2, y + 3);
@@ -145,8 +209,6 @@ export function mountCoaster({ canvas, overlay, scoreNode, bestNode, statusNode,
       ctx.fill();
       ctx.fillRect(x + 6, y + 13, CELL - 12, 3);
     } else {
-      fill(object.x, object.y, 1, 1, '#0f380f');
-      ctx.fillStyle = '#9bbc0f';
       ctx.beginPath();
       ctx.arc(x + CELL / 2, y + CELL / 2 - 2, CELL / 2 - 7, 0, Math.PI * 2);
       ctx.fill();
@@ -184,9 +246,12 @@ export function mountCoaster({ canvas, overlay, scoreNode, bestNode, statusNode,
     }
     ctx.fillStyle = '#0f380f';
     ctx.font = 'bold 9px ui-monospace, monospace';
-    ctx.textAlign = 'left';
     ctx.textBaseline = 'top';
-    ctx.fillText(`${LABELS[tool]} €${COSTS[tool] ?? 0}`, 3, 2);
+    ctx.textAlign = 'left';
+    ctx.fillText(`${toolLabel(tool)} €${COSTS[tool] ?? 0}`, 3, 2);
+    ctx.textAlign = 'right';
+    ctx.fillText(`€${Math.round(state.cash)}`, CW - 3, 2);
+    ctx.textAlign = 'left';
     if (messageTimer > 0) {
       ctx.fillStyle = '#9bbc0f';
       ctx.fillRect(0, CH - 12, CW, 12);
@@ -209,22 +274,25 @@ export function mountCoaster({ canvas, overlay, scoreNode, bestNode, statusNode,
     build();
   };
   canvas.addEventListener('pointerdown', tap);
+  const onBuildChange = () => { if (buildSelect) setTool(buildSelect.value); };
+  buildSelect?.addEventListener('change', onBuildChange);
   const stopButtons = bindButtons(controls, {
     '[data-action="pause"]': togglePause,
     '[data-action="fire"]': build,
     '[data-action="select"]': build,
-    '[data-action="tool:path"]': () => input('tool:path'),
-    '[data-action="tool:coaster"]': () => input('tool:coaster'),
-    '[data-action="tool:shop"]': () => input('tool:shop'),
-    '[data-action="tool:tree"]': () => input('tool:tree'),
-    '[data-action="tool:demolish"]': () => input('tool:demolish')
+    '[data-action="speed"]': () => setSpeed(speedIndex + 1),
+    '[data-action="repair"]': doRepair,
+    '[data-action="tool:path"]': () => setTool('path'),
+    '[data-action="tool:shop"]': () => setTool('shop'),
+    '[data-action="tool:tree"]': () => setTool('tree'),
+    '[data-action="tool:demolish"]': () => setTool('demolish')
   });
 
   sync();
   draw();
   showOverlay(overlay, {
     kicker: 'NOKIA · 2003', title: 'COASTER PARK',
-    copy: 'Bouw paden en attracties. Bereik rating 60 en €1000 op dag 3.',
+    copy: `Kies in BOUW, tik op het veld en bereik rating 60 en €1000 op dag 3. Reparatie: €${REPAIR_COST} per rit.`,
     action: 'START ▶', onAction: start
   });
 
@@ -235,6 +303,7 @@ export function mountCoaster({ canvas, overlay, scoreNode, bestNode, statusNode,
       loop.stop();
       stopSwipe();
       canvas.removeEventListener('pointerdown', tap);
+      buildSelect?.removeEventListener('change', onBuildChange);
       stopButtons();
     }
   };

@@ -150,22 +150,28 @@
           <button class="side-key" type="button" data-action="pause">II</button>
         </div>
         <div id="controls-coaster" class="controls controls-coaster" data-controls="controls-coaster" hidden>
-          <div class="tool-row">
-            <button class="tool-key active" type="button" data-action="tool:path">PAD</button>
-            <button class="tool-key" type="button" data-action="tool:coaster">COASTER</button>
-            <button class="tool-key" type="button" data-action="tool:shop">SHOP</button>
-            <button class="tool-key" type="button" data-action="tool:tree">BOOM</button>
+          <div class="coaster-bar">
+            <label class="build-pick">
+              <span>BOUW</span>
+              <select id="build-select" aria-label="Kies wat je bouwt">
+                <option value="path">PAD · €5</option>
+                <option value="carousel">CARROUSEL · €70</option>
+                <option value="coaster" selected>COASTER · €120</option>
+                <option value="ferris">SKY WHEEL · €150</option>
+                <option value="shop">SHOP · €60</option>
+                <option value="tree">BOOM · €10</option>
+              </select>
+            </label>
             <button class="tool-key" type="button" data-action="tool:demolish">SLOPEN</button>
-          </div>
-          <div class="key-row coaster-actions">
-            <div class="dpad"><span></span><button type="button" data-action="up" aria-label="Omhoog">▲</button><span></span><button type="button" data-action="left" aria-label="Links">◀</button><span class="dpad-center">◇</span><button type="button" data-action="right" aria-label="Rechts">▶</button><span></span><button type="button" data-action="down" aria-label="Omlaag">▼</button><span></span></div>
-            <button class="fire-key" type="button" data-action="fire">PLAATS</button>
-            <button type="button" data-action="pause">II</button>
+            <button class="fire-key place-key" type="button" data-action="fire">PLAATS</button>
+            <button class="func-key" type="button" data-action="speed">SNELHEID <b>»1</b></button>
+            <button class="func-key" type="button" data-action="repair">REPAREREN €20</button>
+            <button class="func-key" type="button" data-action="pause">II</button>
           </div>
         </div>
       </div>
       <div class="phone-bottom">
-        <div class="readout"><span>SCORE <b id="score">000</b></span><span>BEST <b id="best">000</b></span></div>
+        <div class="readout"><span id="balance-wrap" hidden>SALDO <b id="balance">0500</b></span><span>SCORE <b id="score">000</b></span><span>BEST <b id="best">000</b></span></div>
         <button id="exit" class="exit" type="button">TERUG ↩</button>
       </div>
     </div>

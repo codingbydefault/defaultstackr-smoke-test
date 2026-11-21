@@ -75,10 +75,12 @@ const GAMES = {
   coaster: {
     title: 'COASTER PARK',
     kicker: 'NOKIA · 2003',
-    hint: 'Bouw paden, zet attracties neer, 1–5 kiest een tool',
+    hint: 'Kies in BOUW · tik op het veld · R rit · S snelheid · F repareren',
     controls: 'controls-coaster',
     bestKey: 'defaultstackr-nokia-coaster-best',
     pad: 5,
+    balance: true,
+    compactKeypad: true,
     mount: mountCoaster
   }
 };
@@ -90,6 +92,8 @@ const overlay = document.querySelector('#game-overlay');
 const scoreNode = document.querySelector('#score');
 const bestNode = document.querySelector('#best');
 const statusNode = document.querySelector('#status');
+const balanceNode = document.querySelector('#balance');
+const balanceWrap = document.querySelector('#balance-wrap');
 const titleNode = document.querySelector('#game-title');
 const kickerNode = document.querySelector('#game-kicker');
 const hintNode = document.querySelector('#game-hint');
@@ -108,6 +112,7 @@ function close() {
   current = null;
   gameView.hidden = true;
   hub.hidden = false;
+  gameView.classList.remove('compact-keypad');
   document.body.classList.remove('playing');
   history.replaceState(null, '', '/');
   if (document.fullscreenElement) {
@@ -127,6 +132,8 @@ function launch(id) {
   scoreNode.textContent = '0'.repeat(game.pad);
   bestNode.textContent = String(getBest(game.bestKey)).padStart(game.pad, '0');
   statusNode.textContent = 'READY';
+  balanceWrap.hidden = !game.balance;
+  gameView.classList.toggle('compact-keypad', Boolean(game.compactKeypad));
 
   document.querySelectorAll('[data-controls]').forEach((group) => {
     group.hidden = group.dataset.controls !== game.controls;
@@ -136,7 +143,7 @@ function launch(id) {
   document.body.classList.add('playing');
   history.replaceState(null, '', `#${id}`);
 
-  active = game.mount({ canvas, overlay, scoreNode, bestNode, statusNode, controls: document.getElementById(game.controls) });
+  active = game.mount({ canvas, overlay, scoreNode, bestNode, statusNode, balanceNode, controls: document.getElementById(game.controls) });
   active.start();
 
   // The click is a user gesture, so browsers allow fullscreen here. The CSS
@@ -154,11 +161,15 @@ exitButton.addEventListener('click', close);
 
 const KEY_ACTIONS = {
   ArrowUp: 'up', ArrowDown: 'down', ArrowLeft: 'left', ArrowRight: 'right',
-  '1': 'tool:path', '2': 'tool:coaster', '3': 'tool:shop', '4': 'tool:tree', '5': 'tool:demolish'
+  '1': 'tool:path', '2': 'tool:shop', '3': 'tool:tree', '4': 'tool:demolish',
+  r: 'ride:next', s: 'speed', f: 'repair'
 };
 document.addEventListener('keydown', (event) => {
   if (!active) return;
-  const action = KEY_ACTIONS[event.key];
+  // Let a focused dropdown keep its own keyboard behaviour.
+  if (event.target instanceof HTMLElement && event.target.closest('select, input, textarea')) return;
+  const key = event.key.length === 1 ? event.key.toLowerCase() : event.key;
+  const action = KEY_ACTIONS[key];
   if (action) {
     event.preventDefault();
     active.input(action);

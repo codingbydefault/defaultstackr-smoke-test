@@ -7,7 +7,7 @@ const SIZE = CELL * 4;
 const GLYPHS = ['◆', '■', '▲', '●', '✚', '✦', '◈', '☾'];
 const BEST_KEY = 'defaultstackr-nokia-pairs-best';
 
-export function mountPairs({ canvas, overlay, scoreNode, bestNode, statusNode, controls }) {
+export function mountPairs({ canvas, overlay, scoreNode, bestNode, statusNode, controls, onRunStart, onRunEnd }) {
   const ctx = createCanvas(canvas, SIZE, SIZE);
   let state = newPairs();
   let best = getBest(BEST_KEY);
@@ -30,6 +30,7 @@ export function mountPairs({ canvas, overlay, scoreNode, bestNode, statusNode, c
     state = newPairs();
     paused = false;
     ended = false;
+    onRunStart?.();
     hideOverlay(overlay);
     sync();
     loop.start();
@@ -54,6 +55,7 @@ export function mountPairs({ canvas, overlay, scoreNode, bestNode, statusNode, c
       beep(true, 700, 0.06);
       if (result.complete && !ended) {
         ended = true;
+        onRunEnd?.(state.score);
         finishPairs(state);
         showOverlay(overlay, {
           kicker: 'PERFECT RUN', title: 'Alles gevonden!', copy: `Score ${state.score} in ${state.moves} beurten.`, action: 'OPNIEUW ▶', onAction: start

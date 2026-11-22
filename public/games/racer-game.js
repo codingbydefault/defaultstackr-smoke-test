@@ -16,7 +16,7 @@ const DARK = '#306230';
 const INK = '#0f380f';
 const BODY_COLORS = [DARK, INK, '#234f12'];
 
-export function mountRacer({ canvas, overlay, scoreNode, bestNode, statusNode, balanceNode, controls }) {
+export function mountRacer({ canvas, overlay, scoreNode, bestNode, statusNode, balanceNode, controls, onRunStart, onRunEnd }) {
   const ctx = createCanvas(canvas, W, H);
   let state = newRacer();
   let best = getBest(BEST_KEY);
@@ -48,6 +48,7 @@ export function mountRacer({ canvas, overlay, scoreNode, bestNode, statusNode, b
     started = true;
     paused = false;
     ended = false;
+    onRunStart?.();
     heldDirection = null;
     tapStart = null;
     hideOverlay(overlay);
@@ -93,6 +94,7 @@ export function mountRacer({ canvas, overlay, scoreNode, bestNode, statusNode, b
     if (state.score > best) best = setBest(BEST_KEY, state.score, best);
     if (state.over && !ended) {
       ended = true;
+      onRunEnd?.(racerScore(state));
       showOverlay(overlay, {
         kicker: 'RACE OVER', title: 'Checkered flag.',
         copy: `Score ${racerScore(state)} · ${Math.floor(state.distance)} meter · ${state.passed} ingehaald.`,

@@ -5,7 +5,7 @@ const TILE = 12;
 const SIZE = GRID * TILE;
 const BEST_KEY = 'defaultstackr-nokia-snake-best';
 
-export function mountSnake({ canvas, overlay, scoreNode, bestNode, statusNode, controls }) {
+export function mountSnake({ canvas, overlay, scoreNode, bestNode, statusNode, controls, onRunStart, onRunEnd }) {
   const ctx = createCanvas(canvas, SIZE, SIZE);
   let game = newGame();
   let best = getBest(BEST_KEY);
@@ -29,6 +29,7 @@ export function mountSnake({ canvas, overlay, scoreNode, bestNode, statusNode, c
     game = { ...newGame(), phase: 'running' };
     paused = false;
     ended = false;
+    onRunStart?.();
     accumulator = 0;
     hideOverlay(overlay);
     sync();
@@ -74,6 +75,7 @@ export function mountSnake({ canvas, overlay, scoreNode, bestNode, statusNode, c
       }
       if ((game.phase === 'over' || game.phase === 'won') && !ended) {
         ended = true;
+        onRunEnd?.(game.score);
         showOverlay(overlay, {
           kicker: game.phase === 'won' ? 'PERFECT RUN' : 'SIGNAL LOST',
           title: game.phase === 'won' ? 'Je hebt gewonnen!' : 'Game over.',

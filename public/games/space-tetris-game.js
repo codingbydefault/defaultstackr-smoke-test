@@ -7,7 +7,7 @@ const H = ROWS * CELL;
 const BEST_KEY = 'defaultstackr-nokia-space-tetris-best';
 const STARS = Array.from({ length: 24 }, (_, i) => ({ x: (i * 7 + 3) % COLS, y: (i * 11 + 5) % ROWS }));
 
-export function mountSpaceTetris({ canvas, overlay, scoreNode, bestNode, statusNode, controls }) {
+export function mountSpaceTetris({ canvas, overlay, scoreNode, bestNode, statusNode, controls, onRunStart, onRunEnd }) {
   const ctx = createCanvas(canvas, W, H);
   let state = newTetris();
   let best = getBest(BEST_KEY);
@@ -29,6 +29,7 @@ export function mountSpaceTetris({ canvas, overlay, scoreNode, bestNode, statusN
     state = newTetris();
     paused = false;
     ended = false;
+    onRunStart?.();
     hideOverlay(overlay);
     sync();
     loop.start();
@@ -72,6 +73,7 @@ export function mountSpaceTetris({ canvas, overlay, scoreNode, bestNode, statusN
     if (state.score > best) best = setBest(BEST_KEY, state.score, best);
     if (state.over && !ended) {
       ended = true;
+      onRunEnd?.(state.score);
       showOverlay(overlay, {
         kicker: 'SIGNAL LOST', title: 'Game over.', copy: `Score ${state.score} · ${state.lines} lijnen. Opnieuw?`, action: 'OPNIEUW ▶', onAction: start
       });

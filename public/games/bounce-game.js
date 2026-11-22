@@ -4,7 +4,7 @@ import { beep, bindButtons, createCanvas, createLoop, getBest, hideOverlay, onSw
 const CELL = 12;
 const BEST_KEY = 'defaultstackr-nokia-bounce-best';
 
-export function mountBounce({ canvas, overlay, scoreNode, bestNode, statusNode, controls }) {
+export function mountBounce({ canvas, overlay, scoreNode, bestNode, statusNode, controls, onRunStart, onRunEnd }) {
   const ctx = createCanvas(canvas, W * CELL, H * CELL);
   let state = newBounce();
   let best = getBest(BEST_KEY);
@@ -25,6 +25,7 @@ export function mountBounce({ canvas, overlay, scoreNode, bestNode, statusNode, 
     state = newBounce();
     paused = false;
     ended = false;
+    onRunStart?.();
     heldDirection = null;
     hideOverlay(overlay);
     sync();
@@ -60,6 +61,7 @@ export function mountBounce({ canvas, overlay, scoreNode, bestNode, statusNode, 
     if (state.score > best) best = setBest(BEST_KEY, state.score, best);
     if (state.over && !ended) {
       ended = true;
+      onRunEnd?.(state.score);
       showOverlay(overlay, {
         kicker: 'SIGNAL LOST', title: 'Game over.', copy: `Score ${state.score} · wave ${state.wave}. Opnieuw?`, action: 'OPNIEUW ▶', onAction: start
       });

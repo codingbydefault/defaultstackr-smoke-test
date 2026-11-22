@@ -216,3 +216,14 @@ body.playing .topbar, body.playing footer, body.playing .space { display: none; 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
 }
+/* Space Arcade public leaderboard. User-generated text is inserted via textContent. */
+.arcade-board { max-width: 980px; margin: 1.4rem auto; padding: 1.1rem; border: 1px solid rgba(186,143,255,.35); border-radius: 18px; background: rgba(8,7,23,.88); color: #f2ecff; }
+.arcade-board h2 { font-size: 1.15rem; margin: 0 0 .75rem; }
+.arcade-board p { font-size: .9rem; line-height: 1.4; }
+.arcade-board .arcade-profile { display: flex; flex-wrap: wrap; gap: .65rem; align-items: center; margin-bottom: .7rem; }
+.arcade-board input, .arcade-board select, .arcade-board button { font: inherit; padding: .55rem .65rem; border-radius: 8px; border: 1px solid rgba(186,143,255,.45); background: #17122a; color: #fff; }
+.arcade-board input { min-width: 140px; }
+.arcade-board button { cursor: pointer; }
+.arcade-board ol { padding-left: 1.5rem; }
+.arcade-board li { padding: .2rem 0; font-variant-numeric: tabular-nums; }
+.arcade-board .arcade-note { color: #c9bbe7; font-size: .82rem; }

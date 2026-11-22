@@ -1,4 +1,5 @@
 import { getBest } from './engine.mjs';
+import { createLeaderboardUI } from './leaderboard-ui.mjs';
 import { mountBounce } from './bounce-game.js';
 import { mountCoaster } from './coaster-park-game.js';
 import { mountImpact } from './impact-game.js';
@@ -86,6 +87,7 @@ const GAMES = {
 };
 
 const hub = document.querySelector('#hub');
+const leaderboardUI = createLeaderboardUI(hub);
 const gameView = document.querySelector('#game-view');
 const canvas = document.querySelector('#game-canvas');
 const overlay = document.querySelector('#game-overlay');
@@ -143,7 +145,12 @@ function launch(id) {
   document.body.classList.add('playing');
   history.replaceState(null, '', `#${id}`);
 
-  active = game.mount({ canvas, overlay, scoreNode, bestNode, statusNode, balanceNode, controls: document.getElementById(game.controls) });
+  const gameCode = { tetris: 'space_tetris', impact: 'space_impact', racer: 'pole_position', coaster: 'coaster_park' }[id] || id;
+  let pendingSession = null;
+  active = game.mount({ canvas, overlay, scoreNode, bestNode, statusNode, balanceNode, controls: document.getElementById(game.controls),
+    onRunStart: () => { pendingSession = leaderboardUI.startRun(gameCode); },
+    onRunEnd: (score) => { leaderboardUI.finishRun(pendingSession, score); }
+  });
   active.start();
 
   // The click is a user gesture, so browsers allow fullscreen here. The CSS

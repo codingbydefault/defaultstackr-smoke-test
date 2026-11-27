@@ -1,5 +1,15 @@
 import { createHash, randomBytes } from 'node:crypto';
 import { Pool } from 'pg';
+import { isIP } from 'node:net';
+
+export function clientAddress(req) {
+  const remote = req.socket.remoteAddress || 'unknown';
+  const forwarded = req.headers['cf-connecting-ip'];
+  // This server binds only to loopback. Cloudflared supplies this header and
+  // overwrites visitor input; never trust it on a direct network connection.
+  return ['127.0.0.1', '::1', '::ffff:127.0.0.1'].includes(remote)
+    && typeof forwarded === 'string' && isIP(forwarded) ? forwarded : remote;
+}
 
 export const GAMES = Object.freeze([
   'snake', 'space_tetris', 'space_impact', 'bounce',
@@ -52,7 +62,7 @@ export function createLeaderboardApi({ databaseUrl = process.env.ARCADE_DATABASE
   }) : null;
   const limits = new Map();
   const checkLimit = (req) => {
-    const now = Date.now(), key = req.socket.remoteAddress || 'unknown';
+    const now = Date.now(), key = clientAddress(req);
     if (limits.size > 1000) for (const [k,v] of limits) if (v.until < now) limits.delete(k);
     const value = limits.get(key);
     if (!value || value.until < now) { limits.set(key, { count: 1, until: now + 60_000 }); return false; }

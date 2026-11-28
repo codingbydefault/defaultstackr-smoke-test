@@ -4,11 +4,13 @@ const SKIP_KEY = 'defaultstackr-arcade-player-skip';
 const GAME_LABELS = {
   snake: 'Snake', space_tetris: 'Space Tetris', space_impact: 'Space Impact',
   bounce: 'Bounce', pairs: 'Pairs', pole_position: 'Pole Position',
-  trap: 'Trap!', coaster_park: 'Coaster Park'
+  trap: 'Trap!', coaster_park: 'Coaster Park', frogger: 'Frogger'
 };
 const stored = (key) => { try { return localStorage.getItem(key); } catch { return null; } };
 const save = (key, value) => { try { localStorage.setItem(key, value); } catch { /* storage unavailable */ } };
 const forget = (key) => { try { localStorage.removeItem(key); } catch { /* storage unavailable */ } };
+const playerChipName = document.querySelector('#player-chip-name');
+const setPlayerChip = (name) => { if (playerChipName) playerChipName.textContent = name || '???'; };
 
 async function api(path, { token, payload } = {}) {
   const response = await fetch(path, {
@@ -26,21 +28,22 @@ async function api(path, { token, payload } = {}) {
 }
 
 export function createLeaderboardUI(hub) {
+  const mount = document.querySelector('#ranking') || hub;
   const panel = document.createElement('section');
   panel.className = 'arcade-board';
   panel.innerHTML = `
-    <h2>WERELDWIJDE HIGHSCORES</h2>
+    <h2>WERELDRANGLIJST</h2>
     <div class="arcade-profile">
-      <label for="arcade-nickname">Spelersnaam</label>
+      <label for="arcade-nickname">SPELERSNAAM</label>
       <input id="arcade-nickname" maxlength="24" placeholder="Jouw nickname" autocomplete="nickname">
-      <button type="button" id="arcade-new-player">Wijzig naam</button>
-      <label for="arcade-game">Ranglijst</label>
-      <select id="arcade-game"></select>
-      <button type="button" id="arcade-refresh">Vernieuwen</button>
+      <button type="button" id="arcade-new-player">WISSEL NAAM</button>
+      <label for="arcade-game">SPEL</label>
+      <select id="arcade-game" aria-label="Kies een spel voor de ranglijst"></select>
+      <button type="button" id="arcade-refresh">VERNIEUWEN</button>
     </div>
     <p id="arcade-message" class="arcade-note" role="status"></p>
     <ol id="arcade-leaderboard"></ol>
-    <p class="arcade-note">Highscores worden na afloop van een spel ingezonden. Basiscontroles beperken misbruik; volledige anti-cheat vereist server-side spelvalidatie.</p>
+    <p class="arcade-note">Highscores worden na afloop van een spel automatisch ingezonden. Basiscontroles beperken misbruik; volledige anti-cheat vereist server-side spelvalidatie.</p>
   `;
   const selector = panel.querySelector('#arcade-game');
   for (const [value, label] of Object.entries(GAME_LABELS)) {
@@ -55,7 +58,7 @@ export function createLeaderboardUI(hub) {
   let token = stored(TOKEN_KEY);
   input.value = stored(NAME_KEY) || '';
   input.disabled = Boolean(token);
-  hub?.appendChild(panel);
+  mount.appendChild(panel);
 
   /* ------------------------------------------------------------------ */
   /* Username pop-up                                                      */
@@ -67,7 +70,7 @@ export function createLeaderboardUI(hub) {
     <div class="arcade-modal" role="dialog" aria-modal="true" aria-labelledby="arcade-modal-title">
       <p class="arcade-modal-kicker">DEFAULTSTACKR · DEEP SPACE ARCADE</p>
       <h2 id="arcade-modal-title">Kies je spelersnaam</h2>
-      <p class="arcade-modal-copy">Je naam verschijnt op de wereldwijde ranglijst en wordt onthouden voor alle acht games.</p>
+      <p class="arcade-modal-copy">Je naam verschijnt op de wereldwijde ranglijst en wordt onthouden voor alle games.</p>
       <form id="arcade-modal-form" novalidate>
         <label for="arcade-modal-input">Spelersnaam</label>
         <input id="arcade-modal-input" maxlength="24" minlength="2" placeholder="Jouw nickname" autocomplete="nickname" required>
@@ -125,6 +128,7 @@ export function createLeaderboardUI(hub) {
       forget(SKIP_KEY);
       input.value = nickname;
       input.disabled = true;
+      setPlayerChip(nickname);
       message.textContent = `Welkom, ${nickname}! Je highscores worden automatisch ingestuurd.`;
       closeModal(token);
       refresh();
@@ -178,20 +182,7 @@ export function createLeaderboardUI(hub) {
 
   panel.querySelector('#arcade-refresh').addEventListener('click', refresh);
   selector.addEventListener('change', refresh);
-  panel.querySelector('#arcade-new-player').addEventListener('click', async () => {
-    token = null;
-    forget(TOKEN_KEY);
-    forget(NAME_KEY);
-    forget(SKIP_KEY);
-    input.disabled = false;
-    input.value = '';
-    message.textContent = 'Kies een nieuwe spelersnaam. Bestaande records blijven bewaard.';
-    const nextToken = await openModal('');
-    if (nextToken) {
-      input.value = stored(NAME_KEY) || '';
-      input.disabled = true;
-    }
-  });
+  panel.querySelector('#arcade-new-player').addEventListener('click', async () => changePlayer());
 
   async function ensurePlayer() {
     if (token) return token;
@@ -242,6 +233,26 @@ export function createLeaderboardUI(hub) {
     }
   }
 
+  /* ------------------------------------------------------------------ */
+  /* Switch player / new profile                                         */
+  /* ------------------------------------------------------------------ */
+  async function changePlayer() {
+    token = null;
+    forget(TOKEN_KEY);
+    forget(NAME_KEY);
+    forget(SKIP_KEY);
+    input.disabled = false;
+    input.value = '';
+    message.textContent = 'Kies een nieuwe spelersnaam. Bestaande records blijven bewaard.';
+    const nextToken = await openModal('');
+    if (nextToken) {
+      input.value = stored(NAME_KEY) || '';
+      input.disabled = true;
+      setPlayerChip(stored(NAME_KEY) || '');
+    }
+    return nextToken;
+  }
+
   /* First visit: ask for a nickname before the player can start a game. */
   if (!token && !stored(SKIP_KEY)) {
     openModal(stored(NAME_KEY) || '');
@@ -249,5 +260,5 @@ export function createLeaderboardUI(hub) {
     refresh();
   }
 
-  return { startRun, finishRun };
+  return { startRun, finishRun, changePlayer };
 }

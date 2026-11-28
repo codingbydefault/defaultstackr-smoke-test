@@ -8,7 +8,8 @@ INSERT INTO public.arcade_games(code,title) VALUES
   ('snake','Snake'),('space_tetris','Space Tetris'),
   ('space_impact','Space Impact'),('bounce','Bounce'),
   ('pairs','Pairs'),('pole_position','Pole Position'),
-  ('trap','Trap!'),('coaster_park','Coaster Park')
+  ('trap','Trap!'),('coaster_park','Coaster Park'),
+  ('frogger','Frogger')
 ON CONFLICT (code) DO NOTHING;
 CREATE TABLE IF NOT EXISTS public.arcade_players(
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),

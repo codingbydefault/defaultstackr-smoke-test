@@ -33,6 +33,8 @@ const assets = new Map([
   ['/games/trap-game.js', ['games/trap-game.js', JS]],
   ['/games/coaster-core.mjs', ['games/coaster-core.mjs', JS]],
   ['/games/coaster-park-game.js', ['games/coaster-park-game.js', JS]],
+  ['/games/frogger-core.mjs', ['games/frogger-core.mjs', JS]],
+  ['/games/frogger-game.js', ['games/frogger-game.js', JS]],
 ]);
 
 http.createServer(async (request, response) => {

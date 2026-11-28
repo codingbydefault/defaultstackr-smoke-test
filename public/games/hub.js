@@ -2,6 +2,7 @@ import { getBest } from './engine.mjs';
 import { createLeaderboardUI } from './leaderboard-ui.mjs';
 import { mountBounce } from './bounce-game.js';
 import { mountCoaster } from './coaster-park-game.js';
+import { mountFrogger } from './frogger-game.js';
 import { mountImpact } from './impact-game.js';
 import { mountPairs } from './pairs-game.js';
 import { mountRacer } from './racer-game.js';
@@ -83,6 +84,15 @@ const GAMES = {
     balance: true,
     compactKeypad: true,
     mount: mountCoaster
+  },
+  frogger: {
+    title: 'FROGGER',
+    kicker: 'RETRO LCD · 1997',
+    hint: 'Oversteek de weg en de rivier naar het huis.',
+    controls: 'controls-frogger',
+    bestKey: 'defaultstackr-nokia-frogger-best',
+    pad: 5,
+    mount: mountFrogger
   }
 };
 
@@ -105,6 +115,60 @@ for (const [id, game] of Object.entries(GAMES)) {
   const node = document.querySelector(`#card-best-${id}`);
   if (node) node.textContent = String(getBest(game.bestKey)).padStart(game.pad, '0');
 }
+
+const heroConsole = document.querySelector('#hero-console');
+const heroArt = document.querySelector('#hc-art');
+const heroOverlay = document.querySelector('#hc-overlay');
+const heroKicker = document.querySelector('#hc-kicker');
+const heroTitle = document.querySelector('#hc-title');
+const heroCopy = document.querySelector('#hc-copy');
+const playerChipName = document.querySelector('#player-chip-name');
+const playerChipSwitch = document.querySelector('#player-chip-switch');
+const HERO_GAMES = Object.keys(GAMES);
+let selected = 'snake';
+
+function syncHero() {
+  const id = HERO_GAMES.includes(selected) ? selected : HERO_GAMES[0];
+  const game = GAMES[id];
+  const source = document.querySelector(`.game-card[data-game="${id}"] .card-art`);
+  if (heroArt) heroArt.replaceChildren(source ? source.cloneNode(true) : null);
+  if (heroKicker) heroKicker.textContent = game.kicker;
+  if (heroTitle) heroTitle.textContent = game.title;
+  if (heroCopy) heroCopy.textContent = game.hint;
+  if (heroOverlay) heroOverlay.hidden = false;
+}
+
+function selectGame(id) {
+  selected = GAMES[id] ? id : HERO_GAMES[0];
+  syncHero();
+}
+
+document.querySelector('#hero-console').addEventListener('click', (event) => {
+  const action = event.target.closest('[data-hub-action]');
+  if (!action) return;
+  const value = action.dataset.hubAction;
+  if (value === 'start') launch(selected);
+  else if (value === 'next') selectGame(HERO_GAMES[(HERO_GAMES.indexOf(selected) + 1) % HERO_GAMES.length]);
+  else if (value === 'prev') selectGame(HERO_GAMES[(HERO_GAMES.indexOf(selected) - 1 + HERO_GAMES.length) % HERO_GAMES.length]);
+});
+
+document.querySelectorAll('[data-game]').forEach((card) => {
+  card.addEventListener('click', () => { selectGame(card.dataset.game); launch(card.dataset.game); });
+  card.addEventListener('focus', () => selectGame(card.dataset.game));
+  card.addEventListener('pointermove', () => selectGame(card.dataset.game));
+});
+
+document.querySelector('#hc-start').addEventListener('click', () => launch(selected));
+
+if (playerChipSwitch) {
+  playerChipSwitch.addEventListener('click', async () => {
+    const token = await leaderboardUI.changePlayer();
+    const name = token ? (localStorage.getItem('defaultstackr-arcade-player-nickname') || '') : null;
+    if (playerChipName) playerChipName.textContent = name || '???';
+  });
+}
+
+syncHero();
 
 let active = null;
 let current = null;
@@ -195,3 +259,23 @@ document.addEventListener('keydown', (event) => {
 const initial = location.hash.slice(1) === 'lines' ? 'racer' : location.hash.slice(1);
 if (GAMES[initial]) launch(initial);
 else close();
+
+document.addEventListener('keydown', (event) => {
+  if (active) return;
+  const target = event.target;
+  if (target instanceof HTMLElement && target.closest('input, select, textarea, [contenteditable="true"]')) return;
+  if (target instanceof HTMLElement && target.tagName === 'BUTTON') return;
+  if (event.key === 'ArrowDown' || event.key === 'ArrowUp' || event.key === 'Home' || event.key === 'End') {
+    event.preventDefault();
+    const index = HERO_GAMES.indexOf(selected);
+    if (event.key === 'ArrowDown') selectGame(HERO_GAMES[(index + 1) % HERO_GAMES.length]);
+    else if (event.key === 'ArrowUp') selectGame(HERO_GAMES[(index - 1 + HERO_GAMES.length) % HERO_GAMES.length]);
+    else if (event.key === 'Home') selectGame(HERO_GAMES[0]);
+    else selectGame(HERO_GAMES[HERO_GAMES.length - 1]);
+    return;
+  }
+  if (event.key === 'Enter' || event.key === ' ') {
+    event.preventDefault();
+    launch(selected);
+  }
+});

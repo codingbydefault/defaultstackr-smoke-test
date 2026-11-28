@@ -3,11 +3,11 @@ import { Pool } from 'pg';
 
 export const GAMES = Object.freeze([
   'snake', 'space_tetris', 'space_impact', 'bounce',
-  'pairs', 'pole_position', 'trap', 'coaster_park'
+  'pairs', 'pole_position', 'trap', 'coaster_park', 'frogger'
 ]);
 const SCORE_RATE = Object.freeze({
   snake: 20, space_tetris: 400, space_impact: 500, bounce: 300,
-  pairs: 100, pole_position: 1500, trap: 1500, coaster_park: 20000
+  pairs: 100, pole_position: 1500, trap: 1500, coaster_park: 20000, frogger: 25
 });
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const hash = (token) => createHash('sha256').update(token).digest('hex');

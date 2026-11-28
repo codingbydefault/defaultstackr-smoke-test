@@ -140,6 +140,7 @@ function syncHero() {
 
 function selectGame(id) {
   selected = GAMES[id] ? id : HERO_GAMES[0];
+  if (heroConsole) heroConsole.dataset.selected = selected;
   syncHero();
 }
 

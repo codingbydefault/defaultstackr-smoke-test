@@ -1,5 +1,6 @@
 const TOKEN_KEY = 'defaultstackr-arcade-player-token';
 const NAME_KEY = 'defaultstackr-arcade-player-nickname';
+const SKIP_KEY = 'defaultstackr-arcade-player-skip';
 const GAME_LABELS = {
   snake: 'Snake', space_tetris: 'Space Tetris', space_impact: 'Space Impact',
   bounce: 'Bounce', pairs: 'Pairs', pole_position: 'Pole Position',
@@ -32,7 +33,7 @@ export function createLeaderboardUI(hub) {
     <div class="arcade-profile">
       <label for="arcade-nickname">Spelersnaam</label>
       <input id="arcade-nickname" maxlength="24" placeholder="Jouw nickname" autocomplete="nickname">
-      <button type="button" id="arcade-new-player">Nieuw profiel</button>
+      <button type="button" id="arcade-new-player">Wijzig naam</button>
       <label for="arcade-game">Ranglijst</label>
       <select id="arcade-game"></select>
       <button type="button" id="arcade-refresh">Vernieuwen</button>
@@ -56,6 +57,102 @@ export function createLeaderboardUI(hub) {
   input.disabled = Boolean(token);
   hub?.appendChild(panel);
 
+  /* ------------------------------------------------------------------ */
+  /* Username pop-up                                                      */
+  /* ------------------------------------------------------------------ */
+  const modal = document.createElement('div');
+  modal.className = 'arcade-modal-backdrop';
+  modal.hidden = true;
+  modal.innerHTML = `
+    <div class="arcade-modal" role="dialog" aria-modal="true" aria-labelledby="arcade-modal-title">
+      <p class="arcade-modal-kicker">DEFAULTSTACKR · DEEP SPACE ARCADE</p>
+      <h2 id="arcade-modal-title">Kies je spelersnaam</h2>
+      <p class="arcade-modal-copy">Je naam verschijnt op de wereldwijde ranglijst en wordt onthouden voor alle acht games.</p>
+      <form id="arcade-modal-form" novalidate>
+        <label for="arcade-modal-input">Spelersnaam</label>
+        <input id="arcade-modal-input" maxlength="24" minlength="2" placeholder="Jouw nickname" autocomplete="nickname" required>
+        <p id="arcade-modal-error" class="arcade-modal-error" role="alert"></p>
+        <div class="arcade-modal-actions">
+          <button type="submit" id="arcade-modal-submit">START DE MISSIE</button>
+          <button type="button" id="arcade-modal-skip">Speel zonder ranglijst</button>
+        </div>
+      </form>
+    </div>
+  `;
+  document.body.appendChild(modal);
+
+  const modalInput = modal.querySelector('#arcade-modal-input');
+  const modalError = modal.querySelector('#arcade-modal-error');
+  const modalForm = modal.querySelector('#arcade-modal-form');
+  let modalResolve = null;
+
+  function openModal(prefill = '') {
+    modalInput.value = prefill;
+    modalError.textContent = '';
+    modal.hidden = false;
+    requestAnimationFrame(() => modalInput.focus());
+    return new Promise((resolve) => {
+      modalResolve = resolve;
+    });
+  }
+
+  function closeModal(result) {
+    modal.hidden = true;
+    modalError.textContent = '';
+    if (modalResolve) {
+      const resolve = modalResolve;
+      modalResolve = null;
+      resolve(result);
+    }
+  }
+
+  function validNickname(value) {
+    return /^[\p{L}\p{N}_. -]{2,24}$/u.test(value);
+  }
+
+  async function submitNickname(value) {
+    const nickname = value.trim();
+    if (!validNickname(nickname)) {
+      modalError.textContent = 'Gebruik 2–24 letters, cijfers, spaties, punt, streep of underscore.';
+      return;
+    }
+    modalError.textContent = 'Profiel aanmaken…';
+    try {
+      const data = await api('/api/players', { payload: { nickname } });
+      token = data.token;
+      save(TOKEN_KEY, token);
+      save(NAME_KEY, nickname);
+      forget(SKIP_KEY);
+      input.value = nickname;
+      input.disabled = true;
+      message.textContent = `Welkom, ${nickname}! Je highscores worden automatisch ingestuurd.`;
+      closeModal(token);
+      refresh();
+    } catch (error) {
+      modalError.textContent = `Kon profiel niet aanmaken: ${error.message}`;
+    }
+  }
+
+  modalForm.addEventListener('submit', (event) => {
+    event.preventDefault();
+    submitNickname(modalInput.value);
+  });
+  modal.querySelector('#arcade-modal-skip').addEventListener('click', () => {
+    const nickname = modalInput.value.trim();
+    if (nickname) {
+      save(NAME_KEY, nickname);
+      input.value = nickname;
+    }
+    save(SKIP_KEY, '1');
+    message.textContent = nickname
+      ? `Welkom, ${nickname}. De wereldranglijst is nu niet beschikbaar; je scores blijven lokaal bewaard.`
+      : 'Je speelt zonder wereldranglijst. Je scores blijven lokaal bewaard.';
+    closeModal(null);
+  });
+
+  /* ------------------------------------------------------------------ */
+  /* Leaderboard                                                          */
+  /* ------------------------------------------------------------------ */
   async function refresh() {
     message.textContent = 'Ranglijst laden…';
     list.replaceChildren();
@@ -64,9 +161,14 @@ export function createLeaderboardUI(hub) {
       message.textContent = data.leaderboard.length
         ? `Top ${data.leaderboard.length} — ${GAME_LABELS[selector.value]}`
         : 'Nog geen highscores. Speel als eerste!';
+      const nickname = stored(NAME_KEY);
       for (const item of data.leaderboard) {
         const row = document.createElement('li');
         row.textContent = `${item.nickname} — ${item.best_score}`;
+        if (nickname && item.nickname === nickname) {
+          row.classList.add('arcade-self');
+          row.setAttribute('aria-current', 'true');
+        }
         list.appendChild(row);
       }
     } catch {
@@ -76,29 +178,35 @@ export function createLeaderboardUI(hub) {
 
   panel.querySelector('#arcade-refresh').addEventListener('click', refresh);
   selector.addEventListener('change', refresh);
-  panel.querySelector('#arcade-new-player').addEventListener('click', () => {
+  panel.querySelector('#arcade-new-player').addEventListener('click', async () => {
     token = null;
     forget(TOKEN_KEY);
-    forget(NAME_KEY);
     input.disabled = false;
     input.value = '';
-    input.focus();
     message.textContent = 'Kies een nieuwe spelersnaam. Bestaande records blijven bewaard.';
+    const nextToken = await openModal(stored(NAME_KEY) || '');
+    if (nextToken) {
+      input.value = stored(NAME_KEY) || '';
+      input.disabled = true;
+    }
   });
 
   async function ensurePlayer() {
     if (token) return token;
-    const nickname = input.value.trim();
-    if (!nickname) {
-      message.textContent = 'Vul voor het spelen een nickname in om op de wereldranglijst te komen.';
+    if (stored(SKIP_KEY)) return null;
+    const nickname = stored(NAME_KEY) || input.value.trim();
+    if (!nickname) return null;
+    try {
+      const data = await api('/api/players', { payload: { nickname } });
+      token = data.token;
+      save(TOKEN_KEY, token);
+      save(NAME_KEY, nickname);
+      input.value = nickname;
+      input.disabled = true;
+      return token;
+    } catch {
       return null;
     }
-    const data = await api('/api/players', { payload: { nickname } });
-    token = data.token;
-    save(TOKEN_KEY, token);
-    save(NAME_KEY, nickname);
-    input.disabled = true;
-    return token;
   }
 
   function startRun(gameCode) {
@@ -131,6 +239,13 @@ export function createLeaderboardUI(hub) {
       message.textContent = `Score niet opgeslagen: ${error.message}`;
     }
   }
-  refresh();
+
+  /* First visit: ask for a nickname before the player can start a game. */
+  if (!token && !stored(SKIP_KEY)) {
+    openModal(stored(NAME_KEY) || '');
+  } else {
+    refresh();
+  }
+
   return { startRun, finishRun };
 }

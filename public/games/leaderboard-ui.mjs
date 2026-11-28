@@ -181,10 +181,12 @@ export function createLeaderboardUI(hub) {
   panel.querySelector('#arcade-new-player').addEventListener('click', async () => {
     token = null;
     forget(TOKEN_KEY);
+    forget(NAME_KEY);
+    forget(SKIP_KEY);
     input.disabled = false;
     input.value = '';
     message.textContent = 'Kies een nieuwe spelersnaam. Bestaande records blijven bewaard.';
-    const nextToken = await openModal(stored(NAME_KEY) || '');
+    const nextToken = await openModal('');
     if (nextToken) {
       input.value = stored(NAME_KEY) || '';
       input.disabled = true;

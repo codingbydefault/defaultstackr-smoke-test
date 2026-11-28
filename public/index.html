@@ -34,15 +34,43 @@
       </svg>
       <span class="brand-word">Default<span class="accent">Stackr</span><small>DEEP SPACE ARCADE</small></span>
     </a>
-    <div class="sector"><span class="sector-dot"></span> SECTOR 08 <span class="sector-sep">/</span> 08 GAMES</div>
+    <div class="topbar-right">
+      <div id="player-chip" class="player-chip">
+        <span class="player-chip-dot" aria-hidden="true"></span>
+        <span id="player-chip-name" class="player-chip-name">???</span>
+        <button type="button" class="player-chip-switch" id="player-chip-switch">WISSEL ▲</button>
+      </div>
+      <div class="sector"><span class="sector-dot"></span> SECTOR 09 <span class="sector-sep">/</span> 09 GAMES</div>
+    </div>
   </header>
 
   <main id="hub" class="hub">
-    <section class="intro">
-      <div class="eyebrow"><span class="eyebrow-line"></span> INTERSTELLAR ARCADE <span class="eyebrow-number">· 1996 — 2003</span></div>
-      <h1>KIES JE <em>SPEL.</em></h1>
-      <p>Acht klassiekers uit het LCD-tijdperk, opnieuw geladen in een futuristische space-arcade. Tik op een spel — het start meteen volledig scherm. Swipe op je telefoon, gebruik de knoppen of het toetsenbord.</p>
-      <div class="intro-stats"><span><b>08</b> GAMES</span><span><b>LCD</b> PIXEL ART</span><span><b>∞</b> REPLAYS</span></div>
+    <section class="hero">
+      <div class="hero-copy">
+        <h1>KIES JE <em>SPEL.</em></h1>
+        <p>Negen klassiekers uit het LCD-tijdperk, opnieuw geladen in een futuristische space-arcade. Tik op een spel of druk op start — het begint meteen volledig scherm. Swipe op je telefoon, gebruik de knoppen of het toetsenbord.</p>
+        <div class="intro-stats"><span><b>09</b> GAMES</span><span><b>LCD</b> PIXEL ART</span><span><b>∞</b> REPLAYS</span></div>
+      </div>
+
+      <div class="hero-console" id="hero-console" data-selected="snake">
+        <div class="hc-top"><span class="phone-brand">DEFAULTSTACKR <i>·</i> MISSION DECK</span><span class="speaker" aria-hidden="true"><i></i><i></i><i></i></span></div>
+        <div class="lcd-screen hc-screen">
+          <div class="hc-art"><span class="card-art" id="hc-art" aria-hidden="true"></span></div>
+          <div id="hc-overlay" class="lcd-overlay" hidden>
+            <span class="ov-kicker" id="hc-kicker">RETRO LCD · 1998</span>
+            <h2 id="hc-title">SNAKE</h2>
+            <p id="hc-copy">Verzamel energiepunten. Word niet je eigen staart.</p>
+            <button type="button" class="ov-action" id="hc-start" data-hub-action="start">START ▶</button>
+          </div>
+        </div>
+        <div class="hc-controls">
+          <div class="hc-keys">
+            <button type="button" class="hc-key" data-hub-action="prev">◀ EERDER</button>
+            <button type="button" class="hc-key hc-start" data-hub-action="start">START DE MISSIE</button>
+            <button type="button" class="hc-key" data-hub-action="next">▶ VOLGENDAAR</button>
+          </div>
+        </div>
+      </div>
     </section>
 
     <section class="game-grid" aria-label="Kies een spel">
@@ -102,7 +130,16 @@
         <span class="card-copy">Bouw een pretpark, maak gasten blij en word rijk.</span>
         <span class="card-foot"><span>BEST <b id="card-best-coaster">00000</b></span><span class="card-play">SPEEL ▶</span></span>
       </button>
+      <button class="game-card" type="button" data-game="frogger">
+        <span class="card-index">09 <i>/</i> 1997</span>
+        <span class="card-art card-art-frogger" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+        <span class="card-name">FROGGER</span>
+        <span class="card-copy">Oversteek de weg en de rivier naar het huis.</span>
+        <span class="card-foot"><span>BEST <b id="card-best-frogger">000</b></span><span class="card-play">SPEEL ▶</span></span>
+      </button>
     </section>
+
+    <section id="ranking" aria-label="Wereldranglijst"></section>
 
     <p class="below">Klaar voor vertrek? <span>Kies een spel en de missie begint.</span></p>
   </main>
@@ -171,6 +208,10 @@
             <button class="func-key" type="button" data-action="repair">REPAREREN €20</button>
             <button class="func-key" type="button" data-action="pause">II</button>
           </div>
+        </div>
+        <div id="controls-frogger" class="controls" data-controls="controls-frogger" hidden>
+          <div class="dpad"><span></span><button type="button" data-action="up" aria-label="Omhoog">▲</button><span></span><button type="button" data-action="left" aria-label="Links">◀</button><span class="dpad-center">◇</span><button type="button" data-action="right" aria-label="Rechts">▶</button><span></span><button type="button" data-action="down" aria-label="Omlaag">▼</button><span></span></div>
+          <button class="side-key" type="button" data-action="pause">II</button>
         </div>
       </div>
       <div class="phone-bottom">

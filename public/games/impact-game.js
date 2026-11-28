@@ -7,7 +7,7 @@ const H = FIELD_H * CELL;
 const BEST_KEY = 'defaultstackr-nokia-impact-best';
 const STARS = Array.from({ length: 42 }, (_, i) => ({ x: (i * 13 + 2) % FIELD_W, y: (i * 7 + 4) % FIELD_H }));
 
-export function mountImpact({ canvas, overlay, scoreNode, bestNode, statusNode, controls }) {
+export function mountImpact({ canvas, overlay, scoreNode, bestNode, statusNode, controls, onRunStart, onRunEnd }) {
   const ctx = createCanvas(canvas, W, H);
   let state = newImpact();
   let best = getBest(BEST_KEY);
@@ -33,6 +33,7 @@ export function mountImpact({ canvas, overlay, scoreNode, bestNode, statusNode, 
     state = newImpact();
     paused = false;
     ended = false;
+    onRunStart?.();
     heldDirection = null;
     firing = false;
     hideOverlay(overlay);
@@ -76,6 +77,7 @@ export function mountImpact({ canvas, overlay, scoreNode, bestNode, statusNode, 
     if (state.score > best) best = setBest(BEST_KEY, state.score, best);
     if (state.over && !ended) {
       ended = true;
+      onRunEnd?.(state.score);
       showOverlay(overlay, {
         kicker: 'SHIP LOST', title: 'Game over.', copy: `Score ${state.score} · wave ${state.level}. Opnieuw?`, action: 'OPNIEUW ▶', onAction: start
       });

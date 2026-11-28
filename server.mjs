@@ -1,4 +1,5 @@
 import http from 'node:http';
+import { createLeaderboardApi } from './src/leaderboard-api.mjs';
 import { readFile } from 'node:fs/promises';
 import { execFileSync } from 'node:child_process';
 
@@ -8,12 +9,14 @@ const revision = process.env.GIT_COMMIT_SHA?.slice(0, 7) || (() => {
 })();
 
 const JS = 'text/javascript; charset=utf-8';
+const leaderboardApi = createLeaderboardApi();
 const assets = new Map([
   ['/', ['index.html', 'text/html; charset=utf-8']],
   ['/styles.css', ['styles.css', 'text/css; charset=utf-8']],
   ['/game.js', ['game.js', JS]],
   ['/game-core.mjs', ['game-core.mjs', JS]],
   ['/games/hub.js', ['games/hub.js', JS]],
+  ['/games/leaderboard-ui.mjs', ['games/leaderboard-ui.mjs', JS]],
   ['/games/engine.mjs', ['games/engine.mjs', JS]],
   ['/games/snake-game.js', ['games/snake-game.js', JS]],
   ['/games/space-tetris-core.mjs', ['games/space-tetris-core.mjs', JS]],
@@ -30,10 +33,13 @@ const assets = new Map([
   ['/games/trap-game.js', ['games/trap-game.js', JS]],
   ['/games/coaster-core.mjs', ['games/coaster-core.mjs', JS]],
   ['/games/coaster-park-game.js', ['games/coaster-park-game.js', JS]],
+  ['/games/frogger-core.mjs', ['games/frogger-core.mjs', JS]],
+  ['/games/frogger-game.js', ['games/frogger-game.js', JS]],
 ]);
 
 http.createServer(async (request, response) => {
   const pathname = new URL(request.url || '/', 'http://localhost').pathname;
+  if (pathname.startsWith('/api/')) return leaderboardApi(request, response);
   const headers = { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff' };
   if (pathname === '/healthz' || pathname === '/version') {
     response.writeHead(200, headers);

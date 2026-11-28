@@ -5,7 +5,7 @@ const CELL = 30;
 const W = GRID * CELL;
 const BEST_KEY = 'defaultstackr-nokia-trap-best';
 
-export function mountTrap({ canvas, overlay, scoreNode, bestNode, statusNode, controls }) {
+export function mountTrap({ canvas, overlay, scoreNode, bestNode, statusNode, controls, onRunStart, onRunEnd }) {
   const ctx = createCanvas(canvas, W, W);
   let state = newTrap();
   let best = getBest(BEST_KEY);
@@ -38,6 +38,7 @@ export function mountTrap({ canvas, overlay, scoreNode, bestNode, statusNode, co
     state = newTrap();
     paused = false;
     ended = false;
+    onRunStart?.();
     held = null;
     flash = 0;
     bonusText = '';
@@ -92,6 +93,7 @@ export function mountTrap({ canvas, overlay, scoreNode, bestNode, statusNode, co
     if (state.score > best) best = setBest(BEST_KEY, state.score, best);
     if (state.over && !ended) {
       ended = true;
+      onRunEnd?.(state.score);
       showOverlay(overlay, {
         kicker: 'TRAP!', title: 'Game over.', copy: `Score ${state.score} · ${Math.floor(state.time)} seconden.`, action: 'OPNIEUW ▶', onAction: start
       });

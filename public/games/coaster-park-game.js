@@ -15,7 +15,7 @@ const money = (value) => {
   return `${amount < 0 ? '-' : ''}${String(Math.abs(amount)).padStart(4, '0')}`;
 };
 
-export function mountCoaster({ canvas, overlay, scoreNode, bestNode, statusNode, balanceNode, controls }) {
+export function mountCoaster({ canvas, overlay, scoreNode, bestNode, statusNode, balanceNode, controls, onRunStart, onRunEnd }) {
   const ctx = createCanvas(canvas, CW, CH);
   const buildSelect = controls.querySelector('#build-select');
   const speedNode = controls.querySelector('[data-action="speed"] b');
@@ -76,6 +76,7 @@ export function mountCoaster({ canvas, overlay, scoreNode, bestNode, statusNode,
     if (speedNode) speedNode.textContent = `»${SPEEDS[0]}`;
     paused = false;
     ended = false;
+    onRunStart?.();
     message = 'BOUW je park';
     messageTimer = 2;
     setTool('path');
@@ -153,6 +154,7 @@ export function mountCoaster({ canvas, overlay, scoreNode, bestNode, statusNode,
     if (score > best) best = setBest(BEST_KEY, score, best);
     if (state.over && !ended) {
       ended = true;
+      onRunEnd?.(parkScore(state));
       showOverlay(overlay, {
         kicker: state.won ? 'PARK VOLTOOID' : 'PARK GESLOTEN',
         title: state.won ? 'Gefeliciteerd!' : 'Game over.',
